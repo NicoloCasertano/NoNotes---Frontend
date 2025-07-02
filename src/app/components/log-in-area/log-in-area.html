@@ -1,0 +1,9 @@
+<p>log-in-area works!</p>
+<div>
+    <Form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <input type="email" id="email" placeholder="Your Email" formControlName="email">
+        <input type="password" id="password" placeholder="Your Password" minlength="5" maxlength="30" formControlName="password">
+        <button (click)="onSubmit()">Welcome</button>
+        <button (click)="gotToSignIn()">Register</button>
+    </Form>
+</div>

@@ -1,0 +1,14 @@
+<p>beat-list works!</p>
+@if (!isBeatsListEmpty()) {
+    <div class="list-container">
+        @for (beat of beats; track beat.id) {
+            <div class="card">
+                <a class="card-a" [routerLink]="['/beat-details', beat.id]" [state]="{ beat: beat}"></a>
+                <img [src]="beat.imgUrl" class="image-beat">
+                <div class="beat-title-div">
+                    <h2 class="beat-title-scroll"> {{ beat.beatTitle}} </h2>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,19 @@
+<h1>Listening Area</h1>
+
+<div class="slide-panels" [class.open]="panelOpen">
+  <h3>Plugin Tools</h3>
+  
+  <button (click)="enableEnvelope()">Envelope</button>
+  <button (click)="enableZoom()">Zoom</button>
+  <button (click)="enableRegions()">Regions</button>
+  <button (click)="enableTimeline()">Timeline</button>
+  <button (click)="enableHover()">Hover</button>
+</div>
+
+<div id="waveform" #waveformContainer></div>
+<div id="timeline"></div>
+
+<button (click)="panelOpen = !panelOpen">Toogle Panel</button>
+<button (click)="togglePlay()">
+    {{ playing ? 'Stop' : 'Play '}}
+</button>

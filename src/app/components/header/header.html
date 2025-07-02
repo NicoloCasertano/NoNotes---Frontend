@@ -1,0 +1,22 @@
+<p>header works!</p>
+<main>
+    <button id="buttonsDiv" (click)="navToHome()">Back To Home</button>
+    <form (ngSubmit)="send()">
+        <div class="search-zone">
+            <input type="text" id="title" class="title" [(ngModel)]="title" name="title" placeholder="Titolo del brano"> 
+            <button>NoSearch</button>
+        </div>
+    </form>
+    <div id="authDiv">
+        @if (isInLoginPage) {
+            @if (!isAlreadyLogged) {
+            <button class="auth-button" routerLink="/auth/logout">Log Out</button>
+            <button class="profile-button" routerLink="/user">Il tuo Profilo</button>
+            } 
+            @else {
+                <button class="auth-button" routerLink="/auth/login">Log In</button>
+                <button class="auth-button" routerLink="/auth/register">Register</button>
+            }
+        }
+    </div>
+</main>

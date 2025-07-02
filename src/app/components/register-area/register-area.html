@@ -1,0 +1,10 @@
+<p>register-area works!</p>
+<div>
+    <Form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <input type="text" id="nome" placeholder="Nome utente" minlength="3" maxlength="30" formControlName="name">
+    <input type="email" id="email" placeholder="Email" formControlName="email">
+    <input type="password" id="password" placeholder="password" minlength="5" maxlength="30" formControlName="password">
+    <button>Register</button>
+        <a routerLink="/auth/login">Hai già un account? Esegui il Login</a>
+    </Form>
+</div>
