@@ -9,7 +9,7 @@ export interface WorkModel {
     key: string,
     audio: AudioModel,
     img: string,
-    user: UserModel,
+    userId: number,
     dataDiCreazione: Date,
     nota: NoteModel|null,
     sort:string|null

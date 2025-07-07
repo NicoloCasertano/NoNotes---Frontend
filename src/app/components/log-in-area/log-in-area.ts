@@ -2,10 +2,6 @@ import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../services/authorization-service';
 import { Router, RouterModule } from '@angular/router';
-import { UserModel } from '../../models/user-model';
-import { JwtTokenModel } from '../../models/jwt-token-model';
-import { UserService } from '../../services/user-service';
-import { UserNoPassModel } from '../../models/user-nopass-model';
 
 @Component({
     selector: 'app-log-in-area',
@@ -42,8 +38,7 @@ export class LogInArea {
             },
             error: (err: any) => {
                 console.log('Errore durante il login: ', err);
-            }
-            
+            }  
         });
         
     }

@@ -28,17 +28,13 @@ export class WorkService {
         return this._http.get<WorkModel[]>(`${this._url}/by-user/${userId}`);
     }
 
-    createWork(file: File, metadata: Partial<WorkModel>): Observable<WorkModel> {
-        const form = new FormData();
-        form.append('file', file);
-        Object.entries(metadata).forEach(([k, v]) => {
-            if(v != null) form.append(k, v.toString());
-        });
+    createWork(form: FormData): Observable<WorkModel> {
         return this._http.post<WorkModel>(this._url, form);
     }
 
     updateWork(id: number, updates: Partial<WorkModel>): Observable<WorkModel> {
         return this._http.put<WorkModel>(`${this._url}/${id}`, updates);
     }
+
 
 }

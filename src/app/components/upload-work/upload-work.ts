@@ -47,8 +47,20 @@ export class UploadWork {
 
 	submitWork() {
 		if(!this.file) return;
+
+		const dto: any = {
+			title: this.work.title,
+			bpm: this.work.bpm,
+			key: this.work.key,
+			dataDiCreazione: new Date().toISOString,
+			userId: this._authService.getUserId()
+		};
+		
 		this.work.dataDiCreazione = new Date();
-		this._workService.createWork(this.file, this.work).subscribe({
+		const form = new FormData();
+		form.append('file', this.file!);
+		Object.entries(dto).forEach(([k, v]) => form.append(k, v!.toString()));
+		this._workService.createWork(form).subscribe({
 			next: w => {
 				console.log('Work caricato con successo', w);
 				//this._router.navigate(['/user', this._authService.getUserId()]);

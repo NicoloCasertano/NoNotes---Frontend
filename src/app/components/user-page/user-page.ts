@@ -45,10 +45,10 @@ export class UserPage {
     this.currentWork = work;
   }
   goToHome() {
-    this._routerPages.navigate(['/home'])
+    this._routerPages.navigate(['/home']);
   }
   goToUploadWork() { 
-    this._routerPages.navigate(['/upload-work'])
+    this._routerPages.navigate(['/upload-work', this.userId]);
   }
   showUserWorks(userId: number) {
     if(!this.userId) return;
