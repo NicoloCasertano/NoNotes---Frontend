@@ -41,7 +41,7 @@ export class UserPage {
   goToHome() {
     this._routerPages.navigate(['/home'])
   }
-  goToUploadWork() {
+  goToUploadWork() { 
     this._routerPages.navigate(['/upload-work'])
   }
   showUserWorks(userId: number) {
