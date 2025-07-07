@@ -28,14 +28,16 @@ export class LogInArea {
         if(this.loginForm.invalid) return;
         
         this._authService.login(this.loginForm.value).subscribe({
-            next:(response: JwtTokenModel) => {
-                const token = response.token;
+            next:(response) => {
+                this._authService.setToken(response.token);
 
-                if(token) {
-                    this._authService.setToken(token);
-                    this._router.navigate(['/home']);
+                const userId = this._authService.getUserId();
+                console.log('ID ricavato dopo il login: ', userId);
+
+                if(userId) {
+                    this._router.navigate(['/user', userId]);
                 } else {
-                    console.error('Token non presente nella risposta');
+                    console.error('Impossibile ricavare userId dal token');
                 }
             },
             error: (err: any) => {

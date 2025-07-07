@@ -1,7 +1,7 @@
 export interface JwtPayloadModel {
-    userId: string,
-    sub: number,
+    userId: number,
+    sub: string,
     iat: number, //data di creazione
     exp: number,
-    [key: string]: any //expiration
+    [key: string]: any; //expiration
 }

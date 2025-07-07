@@ -49,7 +49,9 @@ export class AuthService {
 
     getUserId():number|null {
         const payload = this.decodePayload();
-        return payload?.sub ? +payload.sub : null;
+        return typeof payload?.userId === 'number'
+            ? payload.userId
+            : (payload?.userId ? +payload.userId : null);
     }
     setToken(token:string) {
         localStorage.setItem(this.tokenKey, token);

@@ -29,10 +29,16 @@ export class UserPage {
   userId!: number;
 
   ngOnInit() {
+    console.log('--- ngOnInit UserPage ---');
+    console.log('decodePayload: ', this._authService.decodePayload());
+    console.log('Router.url:', this._routerPages.url);
+    console.log('paramMap snapshot id:', this._router.snapshot.paramMap.get('id'));
     this._router.paramMap.subscribe(params => {
       const idParam = params.get('id');
       this.userId = idParam ? +idParam : 0;
       console.log('User corrente: ', this.userId);
+      console.log('URL attuale: ', this._routerPages.url);
+      
     });
   }
   onSelect(work: WorkModel): void {
@@ -47,8 +53,6 @@ export class UserPage {
   showUserWorks(userId: number) {
     if(!this.userId) return;
 
-    console.log('eccomiiiiii');
-
     this._workService.findWorkDoneByUser(this.userId).subscribe({
     next: ws => {
       this.works = ws; 
@@ -57,8 +61,7 @@ export class UserPage {
     error: err => console.error(err)
     });
     console.log(userId);
-    
-    this._routerPages.navigate(['/work-list']);
+    this._routerPages.navigate(['/work-list', this.userId]);
   }
   hasWorks(works: WorkModel[]) {
     if(!works){

@@ -167,6 +167,6 @@ export class HomeComponent {
       }
     }
     goToUserPage() {
-      this._router.navigate(['/user', this.userId]);
+      this._router.navigate(['/user', this._authService.getUserId()]);
     }
 }

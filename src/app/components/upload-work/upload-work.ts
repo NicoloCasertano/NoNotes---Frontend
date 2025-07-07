@@ -51,7 +51,7 @@ export class UploadWork {
 		this._workService.createWork(this.file, this.work).subscribe({
 			next: w => {
 				console.log('Work caricato con successo', w);
-				this._router.navigate(['/user-page', this._authService.getUserId()]);
+				//this._router.navigate(['/user', this._authService.getUserId()]);
 			},
 			error: e => console.error(e)
 		});
