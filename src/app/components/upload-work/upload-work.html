@@ -3,13 +3,13 @@
 class="drop-zone"
 (dragover)="onDragOver($event)"
 (drop)="onDrop($event)">
-    <p *ngIf="!work.audioFile">Trascina il file audio qui</p>
-    <p *ngIf="work.audioFile"> {{ work.audioFile.name }}</p>
+    <p *ngIf="!work.audio">Trascina il file audio qui</p>
+    <p *ngIf="work.audio"> {{ work.audio.name }}</p>
     <button (click)="goToUserPage()">Profilo Utente</button>
     <button (click)="goToHome()">Torna alla Home</button>
 </div>
 
-<div *ngIf="work.audioFile" class="work-form">
+<div *ngIf="work.audio" class="work-form">
     <h3>Details</h3>
 
     <label>Titolo:
@@ -17,7 +17,7 @@ class="drop-zone"
     </label>
 
     <label>Artista:
-        <input type="text" [(ngModel)]="work.artName" name="artName" />
+        <input type="text" [(ngModel)]="work.user" name="artName" />
     </label>
 
     <label>BPM:

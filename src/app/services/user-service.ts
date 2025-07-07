@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { UserNoPassModel } from "../models/user-nopass-model";
@@ -10,7 +10,7 @@ import { UserModel } from "../models/user-model";
 export class UserService {
     private _url: string = 'http://localhost:8080/api/users';
     private _http: HttpClient = inject(HttpClient);
-    
+
     getUtentiByUsername(userName: string):Observable<UserNoPassModel[]>{
         return this._http.get<UserNoPassModel[]>(`${this._url}/username/${userName}`);
     }
@@ -22,4 +22,11 @@ export class UserService {
     getUerByArtName(artName: string):Observable<UserModel[]> {
         return this._http.get<UserModel[]>(`${this._url}/${artName}`);
     }
+
+    promoteUser(userId: string, newRole: string = 'ADMIN') {
+        return this._http.put(`/api/users/${userId}/role`, null, {
+            params: new HttpParams().set('role', newRole)
+        });
+    }
+
 }

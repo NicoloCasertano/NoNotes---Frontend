@@ -4,12 +4,14 @@ import { Router } from "@angular/router";
 import { Observable } from "rxjs";
 import { Admin } from "../components/admin/admin";
 import { UserModel } from "../models/user-model";
+import { UserService } from "./user-service";
 
 @Injectable({providedIn: 'root'})
 export class AdminService {
     private _url: string = 'http://localhost:8080/api/admins';
     private _http = inject(HttpClient);
     private _router = inject(Router);
+    private _userService = inject(UserService);
 
     getAll():Observable<UserModel[]> {
         return this._http.get<UserModel[]>(this._url);
@@ -22,4 +24,9 @@ export class AdminService {
     delete(id:number) {
         return (this._http.delete(`${this._url}/${id}`));
     }
+
+    promoteUser(id: number, role:string) {
+        this._userService.promoteUser
+    }
+    
 }

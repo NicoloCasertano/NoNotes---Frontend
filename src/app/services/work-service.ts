@@ -12,19 +12,33 @@ export class WorkService {
     private _http = inject(HttpClient);
     private _router = inject(Router);
 
-    findAll(): Observable<WorkModel[]> {
+    findAllWorks(): Observable<WorkModel[]> {
         return this._http.get<WorkModel[]>(this._url);
     }
 
-    findByName(title:string ): Observable<WorkModel[]> {
+    findByTitle(title:string): Observable<WorkModel[]> {
         return this._http.get<WorkModel[]>(`${this._url}?title=${title}`);
     }
 
-    findByFilters(queryString:string): Observable<WorkModel[]> {
+    searchWork(queryString:string): Observable<WorkModel[]> {
         return this._http.get<WorkModel[]>(`${this._url}/search${queryString}`);
     }
 
-    findWorkDoneByUser(id:string): Observable<WorkModel[]> {
-        return this._http.get<WorkModel[]>(`${this._url}/user/${id}`);
+    findWorkDoneByUser(userId:number): Observable<WorkModel[]> {
+        return this._http.get<WorkModel[]>(`${this._url}/by-user/${userId}`);
     }
+
+    createWork(file: File, metadata: Partial<WorkModel>): Observable<WorkModel> {
+        const form = new FormData();
+        form.append('file', file);
+        Object.entries(metadata).forEach(([k, v]) => {
+            if(v != null) form.append(k, v.toString());
+        });
+        return this._http.post<WorkModel>(this._url, form);
+    }
+
+    updateWork(id: number, updates: Partial<WorkModel>): Observable<WorkModel> {
+        return this._http.put<WorkModel>(`${this._url}/${id}`, updates);
+    }
+
 }

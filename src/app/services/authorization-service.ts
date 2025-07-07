@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { RouteConfigLoadEnd, Router } from "@angular/router";
 import { jwtDecode } from 'jwt-decode';
@@ -8,6 +8,7 @@ import { JwtTokenModel } from "../models/jwt-token-model";
 import { LoginRequestModel } from "../models/login-request-model";
 import { JwtPayloadModel } from "../models/jwt-payload-model";
 import { environment } from "../../environment";
+import { AuthorityModel } from "../models/authority-model";
 
 @Injectable({providedIn: 'root'})
 export class AuthService {
@@ -17,21 +18,14 @@ export class AuthService {
     private _router = inject(Router);
     private tokenKey = 'jwt_token';
 
+    constructor(_http: HttpClient){}
+
     register(data: { name: string, email: string; password: string}): Observable<JwtTokenModel>{
         return this._http.post<JwtTokenModel>(`${this._url}/register-area`, data);
-
     }
 
     login(credentials: { email:string; password: string}): Observable<JwtTokenModel> {
         return this._http.post<JwtTokenModel>(`${this._url}/log-in-area`, credentials)
-        // this._http.post<JwtTokenModel>(`${this._url}/login`,logreq).subscribe({
-        //     next: (authToken) =>{
-        //         localStorage.setItem("jwt",authToken.token );
-        //         console.log("Authenticated as "+ logreq.email);
-        //         this._router.navigate(['/home']);
-        //     },
-        //     error: e => alert('Errore nel accesso')
-        // });
     }
 
     logout() {
@@ -53,19 +47,32 @@ export class AuthService {
         return localStorage.getItem("jwt_token");
     }
 
-    getUserId():string|null {
-        const token = this.getToken();
-        if(!token) return null;
-        try {
-            const decoded = jwtDecode<JwtPayloadModel>(token);
-            return decoded.userId || null;
-        } catch (e) {
-            console.error('Errore nel decodificare il token: ', e);
-            return null;
-        }
-        
+    getUserId():number|null {
+        const payload = this.decodePayload();
+        return payload?.sub ? +payload.sub : null;
     }
     setToken(token:string) {
         localStorage.setItem(this.tokenKey, token);
+    }
+    //TODO: DA RIVEDERE, non convince
+    getUserRoles(): string[] {
+        const payload = this.decodePayload();
+        return payload?.['authorities'] || [];
+    }
+    // Decodifica il payload JWT
+    decodePayload(): JwtPayloadModel | null {
+        const token = this.getToken();
+        if (!token) return null;
+        try {
+        const payloadPart = token.split('.')[1];
+        const decoded = atob(payloadPart);
+        return JSON.parse(decoded) as JwtPayloadModel;
+        } catch (e) {
+        console.error('Errore decodifica token', e);
+        return null;
+        }
+    }
+    hasRole(role: string): boolean {
+        return this.getUserRoles().includes(role);
     }
 }

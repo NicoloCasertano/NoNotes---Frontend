@@ -81,7 +81,7 @@ export class HomeComponent {
     fetchPreSearchResults(filters: Partial<SearchModel>): void {
       const queryString = this.createQueryString(filters);
 
-      this._workService.findByFilters(queryString).subscribe({
+      this._workService.findByTitle(queryString).subscribe({
         next: workListDb => {
           this.workList = workListDb;
         },
@@ -116,7 +116,7 @@ export class HomeComponent {
 
     fetchByTitle(title: string) {
       console.log('byTitle');
-      this._workService.findByName(title).subscribe({
+      this._workService.findByTitle(title).subscribe({
         next: workListDb => {
           this.workList = workListDb;
         },
