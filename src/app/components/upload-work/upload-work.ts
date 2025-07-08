@@ -54,21 +54,22 @@ export class UploadWork {
 
 		const dto: any = {
 			title: this.work.title,
-			bpm: this.work.bpm,
+			bpm: Number(this.work.bpm),
 			key: this.work.key,
-			dataDiCreazione: new Date().toISOString(),
+			dataDiCreazione: new Date().toISOString().slice(0, 10),
 			userId: this._authService.getUserId()
 		};
 		
 		const form = new FormData();
 		form.append('file', this.file!);
 		Object.entries(dto).forEach(([k, v]) => form.append(k, v!.toString()));
+
 		this._workService.uploadWork(form).subscribe({
 			next: w => {
 				console.log('Upload completato con successo', w);
 				this._router.navigate(['/listening-area']);
 			},
-			error: e => console.error(e)
+			error: e => console.error("Errore durante l'upload",e)
 		});
 	}
 

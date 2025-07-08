@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import {
   Component,
   ElementRef,
@@ -5,7 +6,7 @@ import {
   OnDestroy,
   OnInit,
   SimpleChanges,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
 import WaveSurfer from 'wavesurfer.js';
 import EnvelopePlugin from 'wavesurfer.js/dist/plugins/envelope.js';
@@ -15,29 +16,38 @@ import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.js';
 import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.js';
 
 @Component({
-  standalone: true,
-  selector: 'app-listening-area',
-  template: `
-    <div #waveformContainer class="waveform"></div>
-    <div id="timeline"></div>
-    <button (click)="togglePlay()">
-      {{ playing ? 'Pause' : 'Play' }}
-    </button>
-	<button (click)="panelOpen = !panelOpen">Toogle Panel</button>
-	<div class="slide-panels" [class.open]="panelOpen">
-		<h3>Plugin Tools</h3>
-		
+  	standalone: true,
+	selector: 'app-listening-area',
+	imports: [CommonModule],
+  	template: `
+		<div #waveformContainer class="waveform"></div>
+		<div id="timeline"></div>
+		<!-- Nuovo player nativo HTML5 -->
+		<audio 
+			*ngIf="audioUrl" 
+			[src]="'http://localhost:8080/' + audioUrl" 
+			controls 
+			style="width: 100%; margin-top: 1rem;">
+			Il tuo browser non supporta l’elemento audio.
+		</audio>
+		<button (click)="togglePlay()">
+			{{ playing ? 'Pause' : 'Play' }}
+		</button>
+		<button (click)="panelOpen = !panelOpen">Toogle Panel</button>
+		<div class="slide-panels" [class.open]="panelOpen">
+			<h3>Plugin Tools</h3>
+			
 		<button (click)="enableEnvelope()">Envelope</button>
 		<button (click)="enableZoom()">Zoom</button>
 		<button (click)="enableRegions()">Regions</button>
 		<button (click)="enableTimeline()">Timeline</button>
 		<button (click)="enableHover()">Hover</button>
-	</div>
-  `,
-  styles: [`
-    .waveform { width: 100%; height: 100px; }
-    #timeline { width: 100%; height: 20px; }
-  `]
+		</div>
+	`,
+  	styles: [`
+		.waveform { width: 100%; height: 100px; }
+		#timeline { width: 100%; height: 20px; }
+	`]
 })
 export class ListeningArea implements OnInit, OnDestroy {
   @ViewChild('waveformContainer', { static: true }) 
