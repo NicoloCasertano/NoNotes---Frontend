@@ -28,6 +28,10 @@ export class WorkService {
         return this._http.get<WorkModel[]>(`${this._url}/by-user/${userId}`);
     }
 
+    findWorkById(workId: number): Observable<WorkModel> {
+        return this._http.get<WorkModel>(`${this._url}/${workId}`);
+    }
+
     createWorkJson(dto:any): Observable<void> {
         return this._http.post<void>(this._url, dto);
     }
@@ -36,8 +40,8 @@ export class WorkService {
         return this._http.put<WorkModel>(`${this._url}/${id}`, updates);
     }
 
-    uploadWork(form: FormData): Observable<any> {
-        return this._http.post(`${this._url}/upload`, form);
+    uploadWork(form: FormData, options?: any): Observable<any> {
+        return this._http.post<any>(`${this._url}/upload`, form, options);
     }
 
 }

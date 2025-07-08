@@ -64,12 +64,16 @@ export class UploadWork {
 		form.append('file', this.file!);
 		Object.entries(dto).forEach(([k, v]) => form.append(k, v!.toString()));
 
-		this._workService.uploadWork(form).subscribe({
-			next: w => {
-				console.log('Upload completato con successo', w);
-				this._router.navigate(['/listening-area']);
-			},
-			error: e => console.error("Errore durante l'upload",e)
+		this._workService.uploadWork(form, { observe: 'response' })
+			.subscribe({
+				next: resp => {
+					const dto = resp.body as WorkModel;  
+      				if (!dto || !dto.workId) {
+        				console.error('Nessun workId nel body:', dto);
+					}
+					return resp;
+				}, 
+				error: e => console.error("Errore durante l'upload", e)
 		});
 	}
 

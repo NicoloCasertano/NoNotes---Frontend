@@ -4,16 +4,19 @@ import {
   ElementRef,
   Input,
   OnDestroy,
+  OnChanges,
   OnInit,
   SimpleChanges,
   ViewChild
 } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import WaveSurfer from 'wavesurfer.js';
 import EnvelopePlugin from 'wavesurfer.js/dist/plugins/envelope.js';
 import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.js';
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.js';
 import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.js';
+import { WorkService } from '../../services/work-service';
 
 @Component({
   	standalone: true,
@@ -23,13 +26,10 @@ import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.js';
 		<div #waveformContainer class="waveform"></div>
 		<div id="timeline"></div>
 		<!-- Nuovo player nativo HTML5 -->
-		<audio 
-			*ngIf="audioUrl" 
-			[src]="'http://localhost:8080/' + audioUrl" 
-			controls 
-			style="width: 100%; margin-top: 1rem;">
-			Il tuo browser non supporta l’elemento audio.
-		</audio>
+		<audio *ngIf="fullUrl" controls style="width:100%; margin-top:1rem">
+      		<source [src]="fullUrl" [type]="audioType" />
+      		Il tuo browser non supporta l’elemento audio.
+    	</audio>
 		<button (click)="togglePlay()">
 			{{ playing ? 'Pause' : 'Play' }}
 		</button>
@@ -49,41 +49,43 @@ import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.js';
 		#timeline { width: 100%; height: 20px; }
 	`]
 })
-export class ListeningArea implements OnInit, OnDestroy {
-  @ViewChild('waveformContainer', { static: true }) 
-  waveformRef!: ElementRef;
+export class ListeningArea implements OnInit, OnDestroy, OnChanges{
+	@ViewChild('waveformContainer') 
+	waveformRef!: ElementRef;
 
-  @Input() audioUrl?: string = '';
+	audioFileName?: string;
 
-  private wavesurfer!: WaveSurfer;
-  private isMobile = top!.matchMedia('(max-width: 900px)').matches;
+	constructor(
+		private route: ActivatedRoute,
+		private workService: WorkService
+	) {}
 
-  private envelope?: ReturnType<typeof EnvelopePlugin.create>;
-  private zoom?: ReturnType<typeof ZoomPlugin.create>;
-  private regions?: ReturnType<typeof RegionsPlugin.create>;
-  private timeline?: ReturnType<typeof TimelinePlugin.create>;
-  private hover?: ReturnType<typeof HoverPlugin.create>;
+	private wavesurfer!: WaveSurfer;
+	private isMobile = top!.matchMedia('(max-width: 900px)').matches;
 
-  playing = false;
-  panelOpen = false;
+	private envelope?: ReturnType<typeof EnvelopePlugin.create>;
+	private zoom?: ReturnType<typeof ZoomPlugin.create>;
+	private regions?: ReturnType<typeof RegionsPlugin.create>;
+	private timeline?: ReturnType<typeof TimelinePlugin.create>;
+	private hover?: ReturnType<typeof HoverPlugin.create>;
 
-  ngOnInit(): void {
-		this.initWaveSurfer();
-		if(this.audioUrl) {
-			this.wavesurfer.load(this.audioUrl);
-		}
-  }
+	playing = false;
+	panelOpen = false;
 
-  ngOnChange(changes: SimpleChanges) {
-	if(changes['audioUrl'] && !changes['audioUrl'].isFirstChange()) {
-		const newUrl = changes['audioUrl'].currentValue as string;
-		if(newUrl) {
-			this.wavesurfer.load(newUrl);
+	public get fullUrl():string | null  {
+		return `http://localhost:8080/api/audios/${this.audioFileName}`;
+	}
+
+	public get audioType(): string {
+		if (!this.audioFileName) return 'audio/mpeg';
+		const ext = this.audioFileName.split('.').pop()?.toLowerCase();
+		switch (ext) {
+			case 'wav': return 'audio/wav';
+			case 'mp3': default: return 'audio/mpeg';
 		}
 	}
-  }
 
-  private initWaveSurfer() {
+	ngOnInit(): void {
 		this.wavesurfer = WaveSurfer.create({
 			container: this.waveformRef.nativeElement,
 			waveColor: '#ddd',
@@ -91,20 +93,47 @@ export class ListeningArea implements OnInit, OnDestroy {
 			cursorColor: '#333',
 			dragToSeek: true,
 			minPxPerSec: 100,
-		});
+			plugins: [
+        	
+        	TimelinePlugin.create({ container: '#timeline' })
+      		]
+    	});
+		this.wavesurfer.on('ready', () => this.playing = false);
+		this.wavesurfer.on('finish', () => this.playing = false);
 
-    	this.wavesurfer.load(this.audioUrl!);
+		
+		const id = Number(this.route.snapshot.paramMap.get('id'));
+		this.workService.findWorkById(id).subscribe(work => {
+			
+			this.audioFileName = work.audio.name;
+			const url = this.fullUrl!;
+			this.wavesurfer.load(url);
+    	});
+		
+		this.initWaveSurfer();
+		this.enableTimeline();
+	}
 
+	ngOnChanges(changes: SimpleChanges): void {
+		if(changes['audioFileName'] && !changes['audioFileName'].isFirstChange()) {
+			if(this.fullUrl) {
+				this.wavesurfer.load(this.fullUrl);
+			}
+		}
+	}
+
+  	private initWaveSurfer() {
+		this.enableTimeline();
 		this.wavesurfer.on('ready', () => (this.playing = false));
 		this.wavesurfer.on('finish', () => (this.playing = false));
 	}
 
-  togglePlay(): void {
+  	togglePlay(): void {
 		this.wavesurfer.playPause();
 		this.playing = this.wavesurfer.isPlaying();
-  }
+  	}
 
-  enableEnvelope() {
+  	enableEnvelope() {
 		if (!this.envelope) {
 			this.envelope = this.wavesurfer.registerPlugin(
 				EnvelopePlugin.create({
@@ -125,53 +154,53 @@ export class ListeningArea implements OnInit, OnDestroy {
 				console.log('Envelope changed', points)
 			);
 		}
-  }
+  	}
 
-  enableZoom() {
-    if (!this.zoom) {
-      this.zoom = this.wavesurfer.registerPlugin(
-        ZoomPlugin.create({
-          scale: 0.5,
-          maxZoom: 100,
-        })
-      );
-      this.wavesurfer.on('zoom', (minPxPerSec) =>
-        console.log('Zoom level:', minPxPerSec)
-      );
-    }
-  }
+	enableZoom() {
+		if (!this.zoom) {
+		this.zoom = this.wavesurfer.registerPlugin(
+			ZoomPlugin.create({
+			scale: 0.5,
+			maxZoom: 100,
+			})
+		);
+		this.wavesurfer.on('zoom', (minPxPerSec) =>
+			console.log('Zoom level:', minPxPerSec)
+		);
+		}
+	}
 
-  enableRegions() {
-    if (!this.regions) {
-      this.regions = this.wavesurfer.registerPlugin(RegionsPlugin.create());
-    }
-  }
+	enableRegions() {
+		if (!this.regions) {
+			this.regions = this.wavesurfer.registerPlugin(RegionsPlugin.create());
+		}
+	}
 
-  enableTimeline() {
-    if (!this.timeline) {
-      this.timeline = this.wavesurfer.registerPlugin(
-        TimelinePlugin.create({ container: '#timeline' })
-      );
-    }
-  }
+	enableTimeline() {
+		if (!this.timeline) {
+		this.timeline = this.wavesurfer.registerPlugin(
+			TimelinePlugin.create({ container: '#timeline' })
+		);
+		}
+	}
 
-  enableHover() {
-    if (!this.hover) {
-      this.hover = this.wavesurfer.registerPlugin(
-        HoverPlugin.create({
-          lineColor: '#ff0000',
-          lineWidth: 1,
-          labelBackground: '#555',
-          labelColor: '#fff',
-          labelSize: '15px',
-          labelPreferLeft: false,
-        })
-      );
-    }
-  }
-  ngOnDestroy(): void {
-    this.wavesurfer.destroy();
-  }
+	enableHover() {
+		if (!this.hover) {
+		this.hover = this.wavesurfer.registerPlugin(
+			HoverPlugin.create({
+			lineColor: '#ff0000',
+			lineWidth: 1,
+			labelBackground: '#555',
+			labelColor: '#fff',
+			labelSize: '15px',
+			labelPreferLeft: false,
+			})
+		);
+		}
+	}
+	ngOnDestroy(): void {
+		this.wavesurfer.destroy();
+	}
 
   
 }

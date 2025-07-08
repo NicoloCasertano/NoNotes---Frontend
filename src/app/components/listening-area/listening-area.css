@@ -4,7 +4,7 @@
   top: 0;
   width: 300px;
   height: 100%;
-  background: #f0f0f0;
+  background: #4d4c4c;
   padding: 20px;
   transition: right 0.3s ease;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
@@ -12,4 +12,10 @@
 }
 .slide-panel.open {
   right: 0;
+}
+.waveform {
+  padding: auto;
+  right: -300px;
+  width: 300px;
+  height: 100%;
 }

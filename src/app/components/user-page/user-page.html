@@ -5,6 +5,7 @@
     <div>
         <button (click)="goToUploadWork()">Upload a new Work</button>
     </div>
-    
-    <app-work-list [works]="works" (selected)="onSelect($event)"></app-work-list>
+    <ng-container *ngIf="works.length">
+        <app-work-list [works]="works" (selected)="onSelect($event)"></app-work-list>
+    </ng-container>
 </div>
