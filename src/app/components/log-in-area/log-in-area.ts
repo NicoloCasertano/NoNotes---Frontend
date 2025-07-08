@@ -32,6 +32,7 @@ export class LogInArea {
 
                 if(userId) {
                     this._router.navigate(['/user', userId]);
+                    console.log(this._authService.getUserRoles());
                 } else {
                     console.error('Impossibile ricavare userId dal token');
                 }

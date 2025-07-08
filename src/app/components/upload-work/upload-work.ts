@@ -38,10 +38,14 @@ export class UploadWork {
 		event.preventDefault();
 	}
 
+	onDragLeave(event: DragEvent) {
+  		event.preventDefault();
+	}
+
 	onDrop(event: DragEvent) {
 		event.preventDefault();
 		if(event.dataTransfer?.files.length) {
-		this.file = event.dataTransfer.files[0];
+			this.file = event.dataTransfer.files[0];
 		}
 	}
 
@@ -52,18 +56,17 @@ export class UploadWork {
 			title: this.work.title,
 			bpm: this.work.bpm,
 			key: this.work.key,
-			dataDiCreazione: new Date().toISOString,
+			dataDiCreazione: new Date().toISOString(),
 			userId: this._authService.getUserId()
 		};
 		
-		this.work.dataDiCreazione = new Date();
 		const form = new FormData();
 		form.append('file', this.file!);
 		Object.entries(dto).forEach(([k, v]) => form.append(k, v!.toString()));
-		this._workService.createWork(form).subscribe({
+		this._workService.uploadWork(form).subscribe({
 			next: w => {
-				console.log('Work caricato con successo', w);
-				//this._router.navigate(['/user', this._authService.getUserId()]);
+				console.log('Upload completato con successo', w);
+				this._router.navigate(['/listening-area']);
 			},
 			error: e => console.error(e)
 		});

@@ -1,15 +1,17 @@
 <p>upload-work works!</p>
 <div
 class="drop-zone"
+(dragenter)="onDragOver($event)"
 (dragover)="onDragOver($event)"
+(dragleave)="onDragLeave($event)"
 (drop)="onDrop($event)">
-    <p *ngIf="!work.audio">Trascina il file audio qui</p>
-    <p *ngIf="work.audio"> {{ work.audio.name }}</p>
+    <p *ngIf="!file">Trascina il file audio qui</p>
+    <p *ngIf="file"> {{ file.name }}</p>
     <button (click)="goToUserPage()">Profilo Utente</button>
     <button (click)="goToHome()">Torna alla Home</button>
 </div>
 
-<div *ngIf="work.audio" class="work-form">
+<div *ngIf="file" class="work-form">
     <h3>Details</h3>
 
     <label>Titolo:

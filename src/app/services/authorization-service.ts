@@ -3,7 +3,7 @@ import { inject, Injectable } from "@angular/core";
 import { RouteConfigLoadEnd, Router } from "@angular/router";
 import { jwtDecode } from 'jwt-decode';
 import { RegistrationRequestModel } from "../models/registration-request-model";
-import { Observable } from "rxjs";
+import { Observable, tap } from "rxjs";
 import { JwtTokenModel } from "../models/jwt-token-model";
 import { LoginRequestModel } from "../models/login-request-model";
 import { JwtPayloadModel } from "../models/jwt-payload-model";
@@ -24,8 +24,12 @@ export class AuthService {
         return this._http.post<JwtTokenModel>(`${this._url}/register-area`, data);
     }
 
-    login(credentials: { email:string; password: string}): Observable<JwtTokenModel> {
-        return this._http.post<JwtTokenModel>(`${this._url}/log-in-area`, credentials)
+    login(credentials: { email:string; password: string}): Observable<JwtTokenModel & {authorities: string[]}> {
+        return this._http.post<JwtTokenModel & {authorities: string[]}>(`${this._url}/log-in-area`, credentials)
+            .pipe(tap(resp => {
+                this.setToken(resp.token);
+                localStorage.setItem('user_roles', JSON.stringify(resp.authorities));
+            }));
     }
 
     logout() {
@@ -55,11 +59,12 @@ export class AuthService {
     }
     setToken(token:string) {
         localStorage.setItem(this.tokenKey, token);
+        console.log(this.decodePayload());
     }
-    //TODO: DA RIVEDERE, non convince
+    
     getUserRoles(): string[] {
-        const payload = this.decodePayload();
-        return payload?.['authorities'] || [];
+        const raw = localStorage.getItem('user_roles');
+        return raw ? JSON.parse(raw) : [];
     }
     // Decodifica il payload JWT
     decodePayload(): JwtPayloadModel | null {
