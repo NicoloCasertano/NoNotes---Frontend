@@ -61,7 +61,7 @@ export class UserPage {
     error: err => console.error(err)
     });
     console.log(userId);
-    this._routerPages.navigate(['/work-list', this.userId]);
+    // this._routerPages.navigate(['/works/by-user', this.userId]);
   }
   hasWorks(works: WorkModel[]) {
     if(!works){

@@ -13,8 +13,8 @@ export class AudioService {
         return this._http.get<AudioModel[]>(this._url);
     }
 
-    finByName(name:string|undefined): Observable<AudioModel[]>{
-        return this._http.get<PageResponse<AudioModel>>(`${this._url}?name=${name}`).pipe(map(page => page.content));
+    finByName(originalFileName:string|undefined): Observable<AudioModel[]>{
+        return this._http.get<PageResponse<AudioModel>>(`${this._url}/${originalFileName}`).pipe(map(page => page.content));
     }
 
     findByFilters(queryString:string): Observable<AudioModel[]> {
@@ -28,5 +28,12 @@ export class AudioService {
 
     findAudioDoneByUser(id:number): Observable<AudioModel[]> {
         return this._http.get<AudioModel[]>(`${this._url}/user/${id}`)
+    }
+
+    getByFileName(fn: string): Observable<Blob> {
+        return this._http.get(
+            `${this._url}/${fn}`,
+            { responseType: 'blob' }
+    );
     }
 }

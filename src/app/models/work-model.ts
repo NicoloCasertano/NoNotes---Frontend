@@ -12,5 +12,5 @@ export interface WorkModel {
     userId: number,
     dataDiCreazione: Date,
     nota: NoteModel|null,
-    sort:string|null
+    users: UserModel[]|null;
 }

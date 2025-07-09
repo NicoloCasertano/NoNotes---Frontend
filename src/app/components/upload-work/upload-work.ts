@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/authorization-service';
 import { WorkService } from '../../services/work-service';
 import { WorkModel } from '../../models/work-model';
+import { routes } from '../../app.routes';
 
 interface Work {
 	title: string;
@@ -68,10 +69,12 @@ export class UploadWork {
 			.subscribe({
 				next: resp => {
 					const dto = resp.body as WorkModel;  
-      				if (!dto || !dto.workId) {
-        				console.error('Nessun workId nel body:', dto);
+      				if (dto?.workId) {
+        				console.log('Upload completato con successo');
+						this._router.navigate(['/listening-area', dto.workId]);
+					} else {
+						console.error('workId mancante nella risposta: ', dto);
 					}
-					return resp;
 				}, 
 				error: e => console.error("Errore durante l'upload", e)
 		});

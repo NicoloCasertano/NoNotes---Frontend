@@ -2,13 +2,13 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   ElementRef,
-  Input,
   OnDestroy,
   OnChanges,
-  OnInit,
   SimpleChanges,
-  ViewChild
+  ViewChild,
+  AfterViewInit
 } from '@angular/core';
+import Spectrogram from 'wavesurfer.js/dist/plugins/spectrogram.esm.js'
 import { ActivatedRoute } from '@angular/router';
 import WaveSurfer from 'wavesurfer.js';
 import EnvelopePlugin from 'wavesurfer.js/dist/plugins/envelope.js';
@@ -17,19 +17,17 @@ import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.js';
 import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.js';
 import { WorkService } from '../../services/work-service';
+import { AudioService } from '../../services/audio-service';
+import { Block } from '@angular/compiler';
 
 @Component({
   	standalone: true,
 	selector: 'app-listening-area',
 	imports: [CommonModule],
   	template: `
-		<div #waveformContainer class="waveform"></div>
+		
 		<div id="timeline"></div>
-		<!-- Nuovo player nativo HTML5 -->
-		<audio *ngIf="fullUrl" controls style="width:100%; margin-top:1rem">
-      		<source [src]="fullUrl" [type]="audioType" />
-      		Il tuo browser non supporta l’elemento audio.
-    	</audio>
+		<button (click)="spectrogram()">Spectrogram</button>
 		<button (click)="togglePlay()">
 			{{ playing ? 'Pause' : 'Play' }}
 		</button>
@@ -37,27 +35,34 @@ import { WorkService } from '../../services/work-service';
 		<div class="slide-panels" [class.open]="panelOpen">
 			<h3>Plugin Tools</h3>
 			
-		<button (click)="enableEnvelope()">Envelope</button>
-		<button (click)="enableZoom()">Zoom</button>
-		<button (click)="enableRegions()">Regions</button>
-		<button (click)="enableTimeline()">Timeline</button>
-		<button (click)="enableHover()">Hover</button>
+			<button (click)="enableEnvelope()">Envelope</button>
+			<button (click)="enableZoom()">Zoom</button>
+			<button (click)="enableRegions()">Regions</button>
+			<button (click)="enableTimeline()">Timeline</button>
+			<button (click)="enableHover()">Pointers</button>
 		</div>
+
+		<div #waveformContainer class="waveform"></div>
+		<audio *ngIf="fullUrl" controls style="width:100%; margin-top:1rem; height: 100px">
+      		<source [src]="fullUrl" [type]="audioType" />
+      		Il tuo browser non supporta l’elemento audio.
+    	</audio>
 	`,
   	styles: [`
 		.waveform { width: 100%; height: 100px; }
 		#timeline { width: 100%; height: 20px; }
 	`]
 })
-export class ListeningArea implements OnInit, OnDestroy, OnChanges{
-	@ViewChild('waveformContainer') 
+export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
+	@ViewChild('waveformContainer', { static: true }) 
 	waveformRef!: ElementRef;
 
 	audioFileName?: string;
 
 	constructor(
 		private route: ActivatedRoute,
-		private workService: WorkService
+		private workService: WorkService,
+		private audioService: AudioService
 	) {}
 
 	private wavesurfer!: WaveSurfer;
@@ -73,7 +78,9 @@ export class ListeningArea implements OnInit, OnDestroy, OnChanges{
 	panelOpen = false;
 
 	public get fullUrl():string | null  {
-		return `http://localhost:8080/api/audios/${this.audioFileName}`;
+		return this.audioFileName
+		? `http://localhost:8080/api/audios/${this.audioFileName}`
+		: null;
 	}
 
 	public get audioType(): string {
@@ -85,33 +92,46 @@ export class ListeningArea implements OnInit, OnDestroy, OnChanges{
 		}
 	}
 
-	ngOnInit(): void {
+	ngAfterViewInit(): void {
+		const workId = Number(this.route.snapshot.paramMap.get('id'));
+		
+		this.workService.findWorkById(workId).subscribe({
+			next: work => {
+				if (work.audio?.storedFileName) {
+      				const url = `http://localhost:8080/api/audios/${this.fullUrl}`;
+    			} else {
+					console.error('Nessun audio associato a questo work:', work);
+				}
+
+				const fullName = work.audio.storedFileName;
+				this.audioFileName = fullName.includes('/') 
+					? fullName.split('/').pop()! 
+					: fullName;
+				this.audioService.getByFileName(this.audioFileName!).subscribe({
+					next: blob => {
+						this.wavesurfer.loadBlob(blob);
+					},
+					error: err => console.error('Errore download audio blob ', err)
+				});
+				
+			},
+			error: err => console.error('Errore recupero work', err)
+		});
 		this.wavesurfer = WaveSurfer.create({
 			container: this.waveformRef.nativeElement,
 			waveColor: '#ddd',
 			progressColor: '#555',
 			cursorColor: '#333',
+			backend: 'MediaElement',
+			mediaControls: true,
 			dragToSeek: true,
 			minPxPerSec: 100,
-			plugins: [
-        	
-        	TimelinePlugin.create({ container: '#timeline' })
-      		]
+			plugins: [TimelinePlugin.create({ container: '#timeline' })]
     	});
-		this.wavesurfer.on('ready', () => this.playing = false);
-		this.wavesurfer.on('finish', () => this.playing = false);
-
-		
-		const id = Number(this.route.snapshot.paramMap.get('id'));
-		this.workService.findWorkById(id).subscribe(work => {
-			
-			this.audioFileName = work.audio.name;
-			const url = this.fullUrl!;
-			this.wavesurfer.load(url);
-    	});
-		
-		this.initWaveSurfer();
-		this.enableTimeline();
+		this.wavesurfer.on('error', (e) => console.error('Wavesurfer error:', e));
+		this.wavesurfer.on('ready', () => (this.playing = false));
+		this.wavesurfer.on('finish', () => (this.playing = false));
+		// this.initWaveSurfer();
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
@@ -123,11 +143,24 @@ export class ListeningArea implements OnInit, OnDestroy, OnChanges{
 	}
 
   	private initWaveSurfer() {
-		this.enableTimeline();
-		this.wavesurfer.on('ready', () => (this.playing = false));
-		this.wavesurfer.on('finish', () => (this.playing = false));
+		// this.enableTimeline();
+		// this.wavesurfer.on('ready', () => (this.playing = false));
+		// this.wavesurfer.on('finish', () => (this.playing = false));
 	}
-
+	spectrogram():void {
+		this.wavesurfer.registerPlugin(
+			Spectrogram.create({
+				labels: true,
+				height: 200,
+				splitChannels: true,
+				scale: 'mel', // or 'linear', 'logarithmic', 'bark', 'erb'
+				frequencyMax: 8000,
+				frequencyMin: 0,
+				fftSamples: 1024,
+				labelsBackground: 'rgba(0, 0, 0, 0.1)',
+  			}),
+		)
+	}
   	togglePlay(): void {
 		this.wavesurfer.playPause();
 		this.playing = this.wavesurfer.isPlaying();

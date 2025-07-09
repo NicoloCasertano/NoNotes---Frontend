@@ -59,14 +59,14 @@ export class AuthService {
     }
     setToken(token:string) {
         localStorage.setItem(this.tokenKey, token);
-        console.log(this.decodePayload());
+        //console.log(this.decodePayload());
     }
     
     getUserRoles(): string[] {
         const raw = localStorage.getItem('user_roles');
         return raw ? JSON.parse(raw) : [];
     }
-    // Decodifica il payload JWT
+    
     decodePayload(): JwtPayloadModel | null {
         const token = this.getToken();
         if (!token) return null;

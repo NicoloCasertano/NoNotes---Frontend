@@ -5,12 +5,14 @@ import { map, Observable } from "rxjs";
 import { Title } from "@angular/platform-browser";
 import { PageResponse } from "../models/page-response-model";
 import { Router } from "@angular/router";
+import { AudioService } from "./audio-service";
 
 @Injectable({providedIn: 'root'})
 export class WorkService {
     private _url: string = 'http://localhost:8080/api/works';
     private _http = inject(HttpClient);
     private _router = inject(Router);
+    private _audioService = inject(AudioService);
 
     findAllWorks(): Observable<WorkModel[]> {
         return this._http.get<WorkModel[]>(this._url);
