@@ -8,17 +8,18 @@ import {
   ViewChild,
   AfterViewInit
 } from '@angular/core';
-import Spectrogram from 'wavesurfer.js/dist/plugins/spectrogram.esm.js'
 import { ActivatedRoute } from '@angular/router';
+
 import WaveSurfer from 'wavesurfer.js';
+import SpectrogramPlugin from 'wavesurfer.js/dist/plugins/spectrogram.esm.js'
 import EnvelopePlugin from 'wavesurfer.js/dist/plugins/envelope.js';
 import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.js';
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js';
 import TimelinePlugin from 'wavesurfer.js/dist/plugins/timeline.js';
 import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.js';
+
 import { WorkService } from '../../services/work-service';
 import { AudioService } from '../../services/audio-service';
-import { Block } from '@angular/compiler';
 
 @Component({
   	standalone: true,
@@ -26,38 +27,48 @@ import { Block } from '@angular/compiler';
 	imports: [CommonModule],
   	template: `
 		
-		<div id="timeline"></div>
-		<button (click)="spectrogram()">Spectrogram</button>
-		<button (click)="togglePlay()">
-			{{ playing ? 'Pause' : 'Play' }}
-		</button>
-		<button (click)="panelOpen = !panelOpen">Toogle Panel</button>
-		<div class="slide-panels" [class.open]="panelOpen">
-			<h3>Plugin Tools</h3>
-			
-			<button (click)="enableEnvelope()">Envelope</button>
-			<button (click)="enableZoom()">Zoom</button>
-			<button (click)="enableRegions()">Regions</button>
-			<button (click)="enableTimeline()">Timeline</button>
-			<button (click)="enableHover()">Pointers</button>
-		</div>
+		
+				<!-- Waveform visibile solo quando l'audio è caricato -->
+		<div
+		class="waveform"
+		id="waveform"
+		[class.loaded]="audioLoaded"
+		*ngIf="audioLoaded"
+		></div>
 
-		<div #waveformContainer class="waveform"></div>
-		<audio *ngIf="fullUrl" controls style="width:100%; margin-top:1rem; height: 100px">
-      		<source [src]="fullUrl" [type]="audioType" />
-      		Il tuo browser non supporta l’elemento audio.
-    	</audio>
+		<!-- Spectrogram opzionale -->
+		<div
+		id="spectrogram"
+		class="spectrogram"
+		[class.loaded]="audioLoaded"
+		*ngIf="audioLoaded"
+		></div>
+
+		<!-- Pulsante Toggle -->
+		<button (click)="togglePanel()">Toggle Panel</button>
+
+		<!-- Pannello con pulsanti -->
+		<div class="slide-panels" [class.open]="showPanel">
+		<button>Envelope</button>
+		<button>Zoom</button>
+		<button>Regions</button>
+		<button>Points</button>
+		</div>
 	`,
-  	styles: [`
-		.waveform { width: 100%; height: 100px; }
-		#timeline { width: 100%; height: 20px; }
-	`]
+  	styleUrls: ['./listening-area.css']
 })
 export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
-	@ViewChild('waveformContainer', { static: true }) 
-	waveformRef!: ElementRef;
+	@ViewChild('waveformContainer', { static: true }) waveformRef!: ElementRef;
+	@ViewChild('spectrogramContainer', { static: true }) spectrogramRef!: ElementRef;
+
+	private wavesurfer!: WaveSurfer;
 
 	audioFileName?: string;
+	private envelope?: ReturnType<typeof EnvelopePlugin.create>;
+	private zoom?: ReturnType<typeof ZoomPlugin.create>;
+	private regions?: ReturnType<typeof RegionsPlugin.create>;
+	private timeline?: ReturnType<typeof TimelinePlugin.create>;
+	private hover?: ReturnType<typeof HoverPlugin.create>;
 
 	constructor(
 		private route: ActivatedRoute,
@@ -65,17 +76,16 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		private audioService: AudioService
 	) {}
 
-	private wavesurfer!: WaveSurfer;
 	private isMobile = top!.matchMedia('(max-width: 900px)').matches;
 
-	private envelope?: ReturnType<typeof EnvelopePlugin.create>;
-	private zoom?: ReturnType<typeof ZoomPlugin.create>;
-	private regions?: ReturnType<typeof RegionsPlugin.create>;
-	private timeline?: ReturnType<typeof TimelinePlugin.create>;
-	private hover?: ReturnType<typeof HoverPlugin.create>;
-
 	playing = false;
-	panelOpen = false;
+	// panelOpen = false;
+	audioLoaded = false;
+	showPanel = false;
+
+	loading = true;
+  	waveformReady = false;
+  	loadError = false;
 
 	public get fullUrl():string | null  {
 		return this.audioFileName
@@ -86,52 +96,67 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 	public get audioType(): string {
 		if (!this.audioFileName) return 'audio/mpeg';
 		const ext = this.audioFileName.split('.').pop()?.toLowerCase();
-		switch (ext) {
-			case 'wav': return 'audio/wav';
-			case 'mp3': default: return 'audio/mpeg';
-		}
+		return ext === 'wav' ? 'audio/wav' : 'audio/mpeg';
 	}
 
 	ngAfterViewInit(): void {
 		const workId = Number(this.route.snapshot.paramMap.get('id'));
-		
+
 		this.workService.findWorkById(workId).subscribe({
 			next: work => {
-				if (work.audio?.storedFileName) {
-      				const url = `http://localhost:8080/api/audios/${this.fullUrl}`;
-    			} else {
-					console.error('Nessun audio associato a questo work:', work);
-				}
+				if (!work.audio?.storedFileName) {
+      				console.error('Nessun audio associato a questo work:', work);
+					return;
+    			} 
 
 				const fullName = work.audio.storedFileName;
 				this.audioFileName = fullName.includes('/') 
 					? fullName.split('/').pop()! 
 					: fullName;
-				this.audioService.getByFileName(this.audioFileName!).subscribe({
+
+				this.audioService.getByFileName(this.audioFileName).subscribe({
 					next: blob => {
-						this.wavesurfer.loadBlob(blob);
+						if (!this.waveformRef?.nativeElement) {
+							console.error('waveformRef non disponibile');
+							return;
+						}
+
+						const audioUrl = URL.createObjectURL(blob);
+
+						this.wavesurfer = WaveSurfer.create({
+							container: '#waveform',
+							waveColor: '#00ffff',
+							progressColor: '#ffffff',
+							cursorColor: '#333',
+							backend: 'MediaElement',
+							mediaControls: true,
+							dragToSeek: true,
+							minPxPerSec: 100,
+							height: 100,
+							plugins: 
+								[TimelinePlugin.create({ container: '#timeline' })]
+						});
+						
+						this.wavesurfer.on('ready', () => {
+							this.audioLoaded = true;
+						});
+
+						this.wavesurfer.on('finish', () => {
+							this.playing = false
+						});
+
+						this.wavesurfer.load(audioUrl);
+					
 					},
-					error: err => console.error('Errore download audio blob ', err)
+					error: err => {
+						console.error('Errore download audio blob ', err)
+						this.loading = false;
+    					this.loadError = true;
+					}
 				});
-				
 			},
 			error: err => console.error('Errore recupero work', err)
 		});
-		this.wavesurfer = WaveSurfer.create({
-			container: this.waveformRef.nativeElement,
-			waveColor: '#ddd',
-			progressColor: '#555',
-			cursorColor: '#333',
-			backend: 'MediaElement',
-			mediaControls: true,
-			dragToSeek: true,
-			minPxPerSec: 100,
-			plugins: [TimelinePlugin.create({ container: '#timeline' })]
-    	});
-		this.wavesurfer.on('error', (e) => console.error('Wavesurfer error:', e));
-		this.wavesurfer.on('ready', () => (this.playing = false));
-		this.wavesurfer.on('finish', () => (this.playing = false));
-		// this.initWaveSurfer();
 	}
 
 	ngOnChanges(changes: SimpleChanges): void {
@@ -141,30 +166,26 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 			}
 		}
 	}
+	showSpectrogram():void {
+		if (!this.wavesurfer) {
+			console.error('wavesurfer non inizializzato');
+			return;
+		}
 
-  	private initWaveSurfer() {
-		// this.enableTimeline();
-		// this.wavesurfer.on('ready', () => (this.playing = false));
-		// this.wavesurfer.on('finish', () => (this.playing = false));
-	}
-	spectrogram():void {
-		this.wavesurfer.registerPlugin(
-			Spectrogram.create({
+		const spectrogramPLugin = this.wavesurfer.registerPlugin(
+			SpectrogramPlugin.create({
+				container: this.spectrogramRef.nativeElement, 
 				labels: true,
 				height: 200,
 				splitChannels: true,
 				scale: 'mel', // or 'linear', 'logarithmic', 'bark', 'erb'
-				frequencyMax: 8000,
-				frequencyMin: 0,
+				frequencyMax: 10000,
+				frequencyMin: 10,
 				fftSamples: 1024,
 				labelsBackground: 'rgba(0, 0, 0, 0.1)',
-  			}),
-		)
+			})
+		);
 	}
-  	togglePlay(): void {
-		this.wavesurfer.playPause();
-		this.playing = this.wavesurfer.isPlaying();
-  	}
 
   	enableEnvelope() {
 		if (!this.envelope) {
@@ -191,15 +212,15 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 
 	enableZoom() {
 		if (!this.zoom) {
-		this.zoom = this.wavesurfer.registerPlugin(
-			ZoomPlugin.create({
-			scale: 0.5,
-			maxZoom: 100,
-			})
-		);
-		this.wavesurfer.on('zoom', (minPxPerSec) =>
-			console.log('Zoom level:', minPxPerSec)
-		);
+			this.zoom = this.wavesurfer.registerPlugin(
+				ZoomPlugin.create({
+				scale: 0.5,
+				maxZoom: 1000,
+				})
+			);
+			this.wavesurfer.on('zoom', (minPxPerSec) =>
+				console.log('Zoom level:', minPxPerSec)
+			);
 		}
 	}
 
@@ -231,8 +252,13 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		);
 		}
 	}
+
+	togglePanel() {
+		this.showPanel = !this.showPanel;
+	}
+
 	ngOnDestroy(): void {
-		this.wavesurfer.destroy();
+		this.wavesurfer?.destroy();
 	}
 
   

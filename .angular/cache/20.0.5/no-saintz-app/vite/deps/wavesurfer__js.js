@@ -134,8 +134,7 @@ var a = class extends e {
     if (t2 && i2 === t2) return;
     this.revokeSrc();
     const s2 = e2 instanceof Blob && (this.canPlayType(e2.type) || !t2) ? URL.createObjectURL(e2) : t2;
-    i2 && this.media.removeAttribute("src");
-    try {
+    if (i2 && this.media.removeAttribute("src"), s2 || t2) try {
       this.media.src = s2;
     } catch (e3) {
       this.media.src = t2;
@@ -832,7 +831,7 @@ var u = class _u extends a {
         const r3 = this.options.blobMimeType;
         r3 && (s2 = new Blob([s2], { type: r3 }));
       }
-      "" == e2 ? this.getMediaElement().removeAttribute("src") : this.setSrc(e2, s2);
+      this.setSrc(e2, s2);
       const a2 = yield new Promise((t3) => {
         const e3 = r2 || this.getDuration();
         e3 ? t3(e3) : this.mediaSubscriptions.push(this.onMediaEvent("loadedmetadata", () => t3(this.getDuration()), { once: true }));
