@@ -19,7 +19,7 @@ export class UserService {
         return this._http.get<UserNoPassModel>(`${this._url}/${userId}`);
     }
 
-    getUerByArtName(artName: string):Observable<UserModel[]> {
+    getUserByArtName(artName: string):Observable<UserModel[]> {
         return this._http.get<UserModel[]>(`${this._url}/${artName}`);
     }
 
@@ -27,6 +27,10 @@ export class UserService {
         return this._http.put(`/api/users/${userId}/role`, null, {
             params: new HttpParams().set('role', newRole)
         });
+    }
+
+    getUserById(userId: number):Observable<UserModel> {
+        return this._http.get<UserModel>(`${this._url}/${userId}`);
     }
 
 }

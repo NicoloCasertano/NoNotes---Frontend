@@ -1,0 +1,49 @@
+.home,
+.upload-work,
+.your-works {
+    background-color: #222;
+    color: #fff;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 0 0 rgba(0, 255, 255, 0.5);
+    transition: all 0.3s ease;
+    font-weight: 500;
+    margin: 0 auto;
+    margin-left: 3%;
+}
+
+.works-div {
+    margin-top: 5%;
+    text-align: center;
+    
+}
+.home:hover,
+.upload-work:hover,
+.your-works:hover {
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.7), 0 0 20px rgba(0, 255, 255, 0.5);
+    transform: scale(1.05);
+    background-color: #0a0a0a;
+}
+
+.works-div::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 50%; height: 100%;
+    background-image: url('https://imgur.com/P2zoWhG.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 65%;
+    z-index: -1;
+}
+@media screen and (max-width: 600px) {
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+h1 {
+    color: #fff;
+}

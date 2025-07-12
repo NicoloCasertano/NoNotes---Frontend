@@ -10,6 +10,8 @@ import { WorkModel } from '../../models/work-model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UploadWork } from '../upload-work/upload-work';
+import { UserService } from '../../services/user-service';
+import { UserModel } from '../../models/user-model';
 
 @Component({
   selector: 'app-user-page',
@@ -18,12 +20,17 @@ import { UploadWork } from '../upload-work/upload-work';
   templateUrl: './user-page.html',
   styleUrls: ['./user-page.css']
 })
-export class UserPage {
+export class UserPage implements UserModel {
+  userName!: string;
+  password!: string;
+  email!: string;
+  artName!: string;
 
   private _router = inject(ActivatedRoute);
   private _routerPages = inject(Router);
   private _workService = inject(WorkService); 
   private _authService = inject(AuthService);
+  private _userService = inject(UserService);
   currentWork: WorkModel | null = null;
   works: WorkModel[] = [];
   userId!: number;
@@ -38,8 +45,16 @@ export class UserPage {
       this.userId = idParam ? +idParam : 0;
       console.log('User corrente: ', this.userId);
       console.log('URL attuale: ', this._routerPages.url);
-      
+
+      const payload = this._authService.decodePayload();
+      this.userName = payload?.sub || '';
+      this.getUserArtName();
+      console.log(this.artName);
+      this._userService.getUserById(this.userId).subscribe(user => {
+        console.log('User response:', user);
+      });
     });
+    
   }
   onSelect(work: WorkModel): void {
     this.currentWork = work;
@@ -61,11 +76,16 @@ export class UserPage {
     error: err => console.error(err)
     });
     console.log(userId);
-    // this._routerPages.navigate(['/works/by-user', this.userId]);
   }
   hasWorks(works: WorkModel[]) {
     if(!works){
         console.log('non ci sono lavori per questo user')
     }
+  }
+  getUserArtName():string{
+    this._userService.getUserById(this.userId).subscribe(user => {
+      this.artName = user?.artName ?? '';  
+    });
+    return this.artName;
   }
 }

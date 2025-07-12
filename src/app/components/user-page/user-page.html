@@ -1,11 +1,18 @@
-<p>user-page works!</p>
-<button (click)="goToHome()">Vai alla Home</button>
-<div>
-    <button (click)="showUserWorks(userId)">Your Works</button>
-    <div>
-        <button (click)="goToUploadWork()">Upload a new Work</button>
+
+<div class="works-div">
+    <div class="user-title-page">
+        <h1 (event)="getUserArtName()">{{ artName }}</h1>
     </div>
-    <ng-container *ngIf="works.length">
-        <app-work-list [works]="works" (selected)="onSelect($event)"></app-work-list>
+    <div>
+        <button (click)="goToHome()" class="home">Vai alla Home</button>
+        <button (click)="showUserWorks(userId)" class="your-works">Your Works</button>
+        <button (click)="goToUploadWork()" class="upload-work">Upload a new Work</button>
+    </div>
+    
+</div>
+
+<div class="work-list-div">
+    <ng-container *ngIf="works.length" class="container">
+        <app-work-list [works]="works" (selected)="onSelect($event)" class="list"></app-work-list>
     </ng-container>
 </div>
