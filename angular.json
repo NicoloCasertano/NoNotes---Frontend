@@ -64,7 +64,8 @@
               "buildTarget": "no-saintz-app:build:production"
             },
             "development": {
-              "buildTarget": "no-saintz-app:build:development"
+              "buildTarget": "no-saintz-app:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

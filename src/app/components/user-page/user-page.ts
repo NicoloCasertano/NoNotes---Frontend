@@ -34,6 +34,7 @@ export class UserPage implements UserModel {
   currentWork: WorkModel | null = null;
   works: WorkModel[] = [];
   userId!: number;
+  userModel!: UserModel;
 
   ngOnInit() {
     console.log('--- ngOnInit UserPage ---');
@@ -48,7 +49,7 @@ export class UserPage implements UserModel {
 
       const payload = this._authService.decodePayload();
       this.userName = payload?.sub || '';
-      this.getUserArtName();
+      // this.getUserArtName();
       console.log(this.artName);
       this._userService.getUserById(this.userId).subscribe(user => {
         console.log('User response:', user);
@@ -84,7 +85,8 @@ export class UserPage implements UserModel {
   }
   getUserArtName():string{
     this._userService.getUserById(this.userId).subscribe(user => {
-      this.artName = user?.artName ?? '';  
+      if(!this.artName) return;
+      this.artName = this.userModel?.artName ?? '';
     });
     return this.artName;
   }

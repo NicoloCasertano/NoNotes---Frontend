@@ -9,26 +9,42 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
     const token = authService.getToken();
     const router = inject(Router);
 
-    if (
-        req.url.includes('/api/works/upload')      ||  // POST per upload
-        req.url.match(/\/api\/audios\/.+$/)         ||  // GET file audio
-        (req.method === 'GET' && req.url.match(/\/api\/works\/\d+$/))
-    ) {
-        return next(req);
-    }
+    let authReq = req;
 
-    const authReq = token ? req.clone({
-        headers: req.headers.set('Authorization', `Bearer ${token}`)
-    }) : req;
+    if (
+        !(
+            req.url.includes('/api/works/upload') ||  
+            req.url.match(/\/api\/audios\/.+$/)   ||  
+            (req.method === 'GET' && req.url.match(/\/api\/works\/\d+$/))
+        )
+    ) {
+        if (token) {
+            authReq = req.clone({
+                headers: req.headers.set('Authorization', `Bearer ${token}`)
+            });
+        }
+    }
+    console.log('Outgoing request:', {
+        url: req.url,
+        method: req.method,
+        headers: req.headers.keys().reduce((acc, key) => {
+            acc[key] = req.headers.get(key);
+            return acc;
+        }, {} as any)
+    });
+    console.log('Request:', authReq.method, authReq.urlWithParams, authReq.headers);
 
     return next(authReq).pipe(
         catchError((error: HttpErrorResponse) => {
-            if(error.status === 401 || error.status === 403) {
+            console.error('HTTP error:', error);
+
+            if (error.status === 401 || error.status === 403) {
                 authService.logout();
                 router.navigate(['/log-in-area']);
-                return throwError(() => "Errore in fase di autenticazione. Ruolo invalido o Sessione scaduta");
+                return throwError(() => new Error("Sessione scaduta o ruolo non valido"));
             }
+
             return throwError(() => error);
         })
     );
-}
+};
