@@ -10,30 +10,30 @@ import { environment } from "../../environment";
     providedIn: 'root'
 })
 export class UserService {
-    private _url: string = 'http://localhost:8080/api/users';
+    private _url: string = environment.apiUrl;
     private _http: HttpClient = inject(HttpClient);
     private _authService = inject(AuthService);
 
     getUtentiByUsername(userName: string):Observable<UserNoPassModel[]>{
-        return this._http.get<UserNoPassModel[]>(`${this._url}/username/${userName}`);
+        return this._http.get<UserNoPassModel[]>(`${this._url}/users/${userName}`);
     }
 
     getUtenteByUtenteId(userId: number):Observable<UserNoPassModel>{
-        return this._http.get<UserNoPassModel>(`${this._url}/${userId}`);
+        return this._http.get<UserNoPassModel>(`${this._url}/users/${userId}`);
     }
 
     getUserByArtName(artName: string):Observable<UserModel[]> {
-        return this._http.get<UserModel[]>(`${this._url}/${artName}`);
+        return this._http.get<UserModel[]>(`${this._url}/users/${artName}`);
     }
 
     promoteUser(userId: string, newRole: string = 'ADMIN') {
-        return this._http.put(`${this._url}/${userId}/role`, null, {
+        return this._http.put(`${this._url}/users/${userId}/role`, null, {
             params: new HttpParams().set('role', newRole)
         });
     }
 
     getUserById(userId: number) {
-        return this._http.get<UserModel>(`${environment.apiUrl}/users/${userId}`, this.getAuthHeaders());
+        return this._http.get<UserModel>(`${this._url}/users/${userId}`);
     }
 
     private getAuthHeaders() {

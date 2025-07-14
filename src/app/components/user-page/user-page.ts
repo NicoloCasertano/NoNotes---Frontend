@@ -1,5 +1,5 @@
 import { HttpParams } from '@angular/common/http';
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { WorkService } from '../../services/work-service';
@@ -20,42 +20,57 @@ import { UserModel } from '../../models/user-model';
   templateUrl: './user-page.html',
   styleUrls: ['./user-page.css']
 })
-export class UserPage implements UserModel {
-  userName!: string;
-  password!: string;
-  email!: string;
-  artName!: string;
+export class UserPage implements OnInit {
+[x: string]: any;
 
   private _router = inject(ActivatedRoute);
   private _routerPages = inject(Router);
   private _workService = inject(WorkService); 
   private _authService = inject(AuthService);
   private _userService = inject(UserService);
-  currentWork: WorkModel | null = null;
+
+  currentWork?: WorkModel | null = null;
   works: WorkModel[] = [];
   userId!: number;
-  userModel!: UserModel;
+  userModel?: UserModel;
 
   ngOnInit() {
     console.log('--- ngOnInit UserPage ---');
     console.log('decodePayload: ', this._authService.decodePayload());
     console.log('Router.url:', this._routerPages.url);
     console.log('paramMap snapshot id:', this._router.snapshot.paramMap.get('id'));
+
+    const token = this._authService.getToken();
+    if (!token) {
+      setTimeout(() => this.ngOnInit(), 100);
+      return;
+    }
+
+    const payload = this._authService.decodePayload();
+    console.log('Decoded payload completo:', payload);
+    const userName = payload?.userName
+    const artName = payload?.artName;
+    console.log("artname: " + artName);
+
+
+    this._userService.getUserById(this.userId).subscribe({
+      next: u => { 
+        this.userModel = u
+        console.log('Dati utente: ', this['u']);
+      },
+      error: e => console.error('API error:', e)
+    });
+
     this._router.paramMap.subscribe(params => {
       const idParam = params.get('id');
       this.userId = idParam ? +idParam : 0;
       console.log('User corrente: ', this.userId);
-      console.log('URL attuale: ', this._routerPages.url);
 
-      const payload = this._authService.decodePayload();
-      this.userName = payload?.sub || '';
-      // this.getUserArtName();
-      console.log(this.artName);
-      this._userService.getUserById(this.userId).subscribe(user => {
-        console.log('User response:', user);
-      });
+      if (!this.userId) {
+        console.error('ID utente non valido');
+        return;
+      }
     });
-    
   }
   onSelect(work: WorkModel): void {
     this.currentWork = work;
@@ -78,16 +93,5 @@ export class UserPage implements UserModel {
     });
     console.log(userId);
   }
-  hasWorks(works: WorkModel[]) {
-    if(!works){
-        console.log('non ci sono lavori per questo user')
-    }
-  }
-  getUserArtName():string{
-    this._userService.getUserById(this.userId).subscribe(user => {
-      if(!this.artName) return;
-      this.artName = this.userModel?.artName ?? '';
-    });
-    return this.artName;
-  }
+  
 }

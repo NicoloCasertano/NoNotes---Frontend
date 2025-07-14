@@ -19,9 +19,12 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
         )
     ) {
         if (token) {
+            console.log('Interceptor: found token ->', token);
             authReq = req.clone({
                 headers: req.headers.set('Authorization', `Bearer ${token}`)
             });
+        } else {
+            console.log('Interceptor: no token found');
         }
     }
     console.log('Outgoing request:', {
@@ -36,14 +39,14 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
 
     return next(authReq).pipe(
         catchError((error: HttpErrorResponse) => {
-            console.error('HTTP error:', error);
-
             if (error.status === 401 || error.status === 403) {
-                authService.logout();
-                router.navigate(['/log-in-area']);
-                return throwError(() => new Error("Sessione scaduta o ruolo non valido"));
+                // Se è la chiamata GET /api/users/{id}, magari lascia passare
+                if (!error.url?.includes('/api/users/')) {
+                    authService.logout();
+                    router.navigate(['/log-in-area']);
+                }
+                // in ogni caso rilancia
             }
-
             return throwError(() => error);
         })
     );

@@ -1,18 +1,31 @@
 
 <div class="works-div">
     <div class="user-title-page">
-        <h1 (event)="getUserArtName()">{{ artName }}</h1>
+        <h1>BENVENUTO, ({{ userModel?.userName }})</h1>
     </div>
     <div>
+        <button (click)="goToUploadWork()" class="upload-work">Upload a new Work</button>
         <button (click)="goToHome()" class="home">Vai alla Home</button>
         <button (click)="showUserWorks(userId)" class="your-works">Your Works</button>
-        <button (click)="goToUploadWork()" class="upload-work">Upload a new Work</button>
     </div>
     
 </div>
 
-<div class="work-list-div">
-    <ng-container *ngIf="works.length" class="container">
-        <app-work-list [works]="works" (selected)="onSelect($event)" class="list"></app-work-list>
-    </ng-container>
+<h2>YOUR WORKS</h2>
+<div *ngIf="userModel?.works?.length ?? ''; else noWorks">
+    <div *ngFor="let w of userModel?.works" class="work-card" (click)="onSelect(w)">
+    <h3>{{ w.title }}</h3>
+    <p>BPM: {{ w.bpm }} – Key: {{ w.key }}</p>
+    <p>Notes: {{ w.nota || '–' }}</p>
+    <audio [src]="w.audio.storedFileName" controls></audio>
+    <img [src]="w.img" alt="Cover di {{ w.title }}">
+    </div>
 </div>
+<ng-template #noWorks>
+    <p>Non ci sono lavori per questo utente.</p>
+</ng-template>
+
+
+<ng-template #loading>
+  <p>Caricamento in corso…</p>
+</ng-template>

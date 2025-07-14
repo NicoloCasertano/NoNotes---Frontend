@@ -22,17 +22,19 @@ export class LogInArea {
     
     onSubmit() {
         if(this.loginForm.invalid) return;
+
         
         this._authService.login(this.loginForm.value).subscribe({
             next:(response) => {
                 this._authService.setToken(response.token);
-
+                localStorage.setItem('jwt_token', response.token);
                 const userId = this._authService.getUserId();
                 console.log('ID ricavato dopo il login: ', userId);
 
                 if(userId) {
                     this._router.navigate(['/user', userId]);
                     console.log(this._authService.getUserRoles());
+                    console.log('Login token:', response.token);
                 } else {
                     console.error('Impossibile ricavare userId dal token');
                 }
