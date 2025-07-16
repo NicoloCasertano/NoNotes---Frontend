@@ -26,10 +26,15 @@
     border: none;
     z-index: 5;
     position: relative;
+    background: none;
+    background-color: transparent;
+    z-index: 20;
+
 }
 
 /* Card stile */
 .work-card {
+  margin-top: 2%;
     flex-shrink: 0;
     min-width: 220px;
     max-width: 260px;
@@ -43,7 +48,7 @@
     transition: all 0.3s ease;
     background-image: url(https://imgur.com/SAD3JAy.jpg);
     background-size: cover;
-    z-index: 3;
+    z-index: 30;
 }
 .work-card:hover {
     background-color: #0ff;
@@ -51,7 +56,7 @@
     box-shadow: 0 0 20px #0ff;
     transform: translateY(-5px) scale(1.03); /* Sollevamento */
     transition: all 0.3s ease;
-    z-index: 20;
+    z-index: 40;
 }
 
 /* Rimuovi sottolineature blu */

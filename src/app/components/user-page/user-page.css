@@ -10,6 +10,9 @@
     font-weight: 500;
     margin: 0 auto;
 }
+.app-work-list{
+    z-index: 100;
+}
 .works-div {
     margin-top: 5%;
     text-align: center; 
