@@ -19,7 +19,7 @@ export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
         )
     ) {
         if (token) {
-            console.log('Interceptor: found token ->', token);
+            // console.log('Interceptor: found token ->', token);
             authReq = req.clone({
                 headers: req.headers.set('Authorization', `Bearer ${token}`)
             });

@@ -7,11 +7,35 @@
   margin: 0;
   padding: 0;
   height: 100vh;
+  scrollbar-width: thin;              
+  scrollbar-color: #00ffff #222;
 }
 
-h1 {
-  color: #00ffff;
-  
+/* NO SAINTZ CHE SI MUOVE */
+.title-text {
+    white-space: nowrap;
+    color: rgb(247, 247, 247);
+    text-align: center;
+    animation: scroll-text 80s linear infinite;
+    margin-top: 1%;
+    text-shadow: 0 0 0.1px rgba(216, 161, 161, 0.7), 0 0 7px rgba(255, 255, 255, 0.5), 0 0 2px rgba(255, 255, 255, 0.3);
+    z-index: 1;
+    top: 0;
+    font-size: medium;
+}
+.scroll-text-container {
+  width: 400%;
+  overflow: hidden;
+  white-space: nowrap;
+  background-color: #000000; 
+}
+@keyframes scroll-text {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 /* REGIONS */

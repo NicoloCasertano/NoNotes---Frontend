@@ -22,7 +22,6 @@ export class LogInArea {
     
     onSubmit() {
         if(this.loginForm.invalid) return;
-
         
         this._authService.login(this.loginForm.value).subscribe({
             next:(response) => {
@@ -43,7 +42,6 @@ export class LogInArea {
                 console.log('Errore durante il login: ', err);
             }  
         });
-        
     }
 
     gotToSignIn() {

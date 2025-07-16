@@ -4,7 +4,6 @@ import { Router, RouterModule } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { WorkService } from '../../services/work-service';
 import { AuthService } from '../../services/authorization-service';
-import { WorkList } from "../home-lists/work-list/work-list";
 import { ListeningArea } from "../listening-area/listening-area";
 import { WorkModel } from '../../models/work-model';
 import { CommonModule } from '@angular/common';
@@ -12,11 +11,12 @@ import { FormsModule } from '@angular/forms';
 import { UploadWork } from '../upload-work/upload-work';
 import { UserService } from '../../services/user-service';
 import { UserModel } from '../../models/user-model';
+import { WorkList } from "../home-lists/work-list/work-list";
 
 @Component({
   selector: 'app-user-page',
   standalone: true,
-  imports: [WorkList, CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, WorkList],
   templateUrl: './user-page.html',
   styleUrls: ['./user-page.css']
 })
@@ -28,17 +28,13 @@ export class UserPage implements OnInit {
   private _workService = inject(WorkService); 
   private _authService = inject(AuthService);
   private _userService = inject(UserService);
-
-  currentWork?: WorkModel | null = null;
   works: WorkModel[] = [];
-  userId!: number;
-  userModel?: UserModel;
 
   ngOnInit() {
     console.log('--- ngOnInit UserPage ---');
-    console.log('decodePayload: ', this._authService.decodePayload());
     console.log('Router.url:', this._routerPages.url);
     console.log('paramMap snapshot id:', this._router.snapshot.paramMap.get('id'));
+    console.log('decodePayload: ', this._authService.decodePayload());
 
     const token = this._authService.getToken();
     if (!token) {
@@ -47,19 +43,9 @@ export class UserPage implements OnInit {
     }
 
     const payload = this._authService.decodePayload();
-    console.log('Decoded payload completo:', payload);
     const userName = payload?.userName
     const artName = payload?.artName;
-    console.log("artname: " + artName);
-
-
-    this._userService.getUserById(this.userId).subscribe({
-      next: u => { 
-        this.userModel = u
-        console.log('Dati utente: ', this['u']);
-      },
-      error: e => console.error('API error:', e)
-    });
+    console.log("artName: " + artName);
 
     this._router.paramMap.subscribe(params => {
       const idParam = params.get('id');
@@ -70,8 +56,26 @@ export class UserPage implements OnInit {
         console.error('ID utente non valido');
         return;
       }
+
+      this._workService.findWorkDoneByUser(this.userId).subscribe({
+        next: ws => {
+          this.works = ws;
+          console.log('Works caricati:', this.works);
+        },
+        error: err => console.error(err)
+      });
+
+        
     });
   }
+
+  uploadedWorks = this.works;
+  currentWork?: WorkModel | null = null;
+  
+  userId!: number;
+  userModel?: UserModel;
+  artName?: string = this._authService.decodePayload()?.artName;
+
   onSelect(work: WorkModel): void {
     this.currentWork = work;
   }
