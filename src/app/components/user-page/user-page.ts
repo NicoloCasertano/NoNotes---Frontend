@@ -12,6 +12,7 @@ import { UploadWork } from '../upload-work/upload-work';
 import { UserService } from '../../services/user-service';
 import { UserModel } from '../../models/user-model';
 import { WorkList } from "../home-lists/work-list/work-list";
+import { AdminService } from '../../services/admin-service';
 
 @Component({
   selector: 'app-user-page',
@@ -96,6 +97,28 @@ export class UserPage implements OnInit {
     error: err => console.error(err)
     });
     console.log(userId);
+  }
+
+  private _adminService = inject(AdminService);
+  success = false;
+  error: string | null = null;
+
+  promote() {
+    this.success = false;
+    this.error   = null;
+
+    this._adminService.promote(this.userId)
+      .subscribe({
+        next: () => {
+          this.success = true;
+          console.log('Promozione avvenuta con successo');
+          console.log('Ruoli aggiornati:', this._authService.getUserRoles());
+        },
+        error: (err) => {
+          this.error = err.message || 'Errore durante la promozione';
+          console.error(err);
+        }
+      });
   }
   
 }

@@ -1,1 +1,8 @@
-<p>admin works!</p>
+<div class="admin">
+    <input type="number" [(ngModel)]="userId" placeholder="ID utente">
+    <input type="text"   [(ngModel)]="roleName" placeholder="Nuovo ruolo">
+    <button (click)="promote()">Aggiorna Ruolo</button>
+
+    <p *ngIf="success" class="success">Ruolo aggiornato con successo!</p>
+    <p *ngIf="error"   class="error">Errore: {{ error }}</p>
+</div>

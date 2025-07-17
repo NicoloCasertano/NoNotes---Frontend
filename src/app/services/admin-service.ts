@@ -17,16 +17,12 @@ export class AdminService {
         return this._http.get<UserModel[]>(this._url);
     }
 
-    promote(id:number) {
-        return this._http.put(`${this._url}/${id}/role`, null);
+    promote(userId:number) {
+        return this._userService.updateUserRole(userId);
     }
 
     delete(id:number) {
         return (this._http.delete(`${this._url}/${id}`));
-    }
-
-    promoteUser(id: number, role:string) {
-        this._userService.promoteUser
     }
     
 }

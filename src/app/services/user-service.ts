@@ -26,12 +26,6 @@ export class UserService {
         return this._http.get<UserModel[]>(`${this._url}/users/${artName}`);
     }
 
-    promoteUser(userId: string, newRole: string = 'ADMIN') {
-        return this._http.put(`${this._url}/users/${userId}/role`, null, {
-            params: new HttpParams().set('role', newRole)
-        });
-    }
-
     getUserById(userId: number) {
         return this._http.get<UserModel>(`${this._url}/users/${userId}`);
     }
@@ -42,5 +36,15 @@ export class UserService {
             ? new HttpHeaders({ 'Authorization': `Bearer ${token}` })
             : new HttpHeaders();
         return { headers };
+    }
+
+    updateUserRole(userId: number): Observable<UserModel> {
+        const newRole: string = 'ADMIN'
+        const params = new HttpParams().set('role', newRole);
+        return this._http.put<UserModel>(
+            `${this._url}/users/${userId}/role`,
+            null,
+            { params }
+        );
     }
 }

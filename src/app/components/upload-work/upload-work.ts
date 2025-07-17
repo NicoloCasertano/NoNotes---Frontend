@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/authorization-service';
 import { WorkService } from '../../services/work-service';
+import { UserService } from '../../services/user-service';
 
 @Component({
 	standalone: true,
@@ -18,6 +19,7 @@ export class UploadWork implements OnInit{
 	private _router = inject(Router);
 	private _authService = inject(AuthService);
 	private _workService = inject(WorkService);
+	private _userService = inject(UserService);
 
 	work: {
 		title?: string,
@@ -33,7 +35,11 @@ export class UploadWork implements OnInit{
 
 	constructor(private http: HttpClient) {}
 	ngOnInit(): void {
-		throw new Error('Method not implemented.');
+		this.isAdmin = this._authService.getUserRoles().includes('ROLE_ADMIN');
+
+		this._userService.getUserById(this.userId!).subscribe(userModel => {
+			this.currentArtName = userModel?.artName ?? '';
+		});
 	}
 
 	onDragOver(event: DragEvent) {
@@ -66,8 +72,13 @@ export class UploadWork implements OnInit{
 
 	submitWork() {
 		if(!this.file || !this.work.title || !this.work.bpm || !this.work.key) return;
+		
+		const userRoles = this._authService.getUserRoles();
+		this.isAdmin = userRoles.includes('ROLE_ADMIN');
 
-		const targetArtName = this.isAdmin ? this.work.artName?.trim() : this.currentArtName;
+		const targetArtName = this.isAdmin 
+			? this.work.artName?.trim() 
+			: this.currentArtName;
 		// const targetArtName = this.work.artName?.trim() ? this.currentArtName : this.currentArtName;
 		if (!targetArtName) {
 			console.error('Unvalid Art Name');
