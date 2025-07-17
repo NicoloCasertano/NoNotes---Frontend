@@ -90,9 +90,9 @@ import { WorkDto } from '../../models/dto/work-dto';
 				<button (click)="enableHover()" [class.active]="hoverActive">Pointer</button>
 				<button (click)="showSpectrogram()" [class.active]="spectrogramVisible">Spectrogram</button>
 
-				<div class="spectrogram-wrapper">
+				<!-- <div class="spectrogram-wrapper">
 					<div #spectrogramContainer class="spectrogram"></div>
-				</div>
+				</div> -->
 			</div>
 			<div class="regions-notes-list">
 				<ul>

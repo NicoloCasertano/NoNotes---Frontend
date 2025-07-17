@@ -9,7 +9,10 @@ import { Component, ElementRef, Input, ViewChild, AfterViewInit } from "@angular
   imports: [CommonModule, RouterModule],
   template:  `
    <div class="work-list-wrapper">
-      <button class="scroll-button left" (click)="scrollLeft()">‹</button>
+      <div class="scroll-button-div">
+        <button class="scroll-button left" (click)="scrollLeft()">‹</button>
+      </div>
+      
       
       <div class="work-list-container">
         <h2 class="works-title">YOUR WORKS</h2><br>
@@ -26,7 +29,7 @@ import { Component, ElementRef, Input, ViewChild, AfterViewInit } from "@angular
           </a>
         </div>
       </div>
-
+      <div class="scroll-button-div"></div>
       <button class="scroll-button right" (click)="scrollRight()">›</button>
     </div>
 	`,

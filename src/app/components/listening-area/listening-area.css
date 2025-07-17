@@ -186,24 +186,23 @@
   cursor: pointer;
 }
 
-.wave-progress {
+/* .wave-progress {
   position: absolute;
-  bottom: 0;           /* appena sopra il bordo inferiore dei controls */
+  bottom: 0;          
   left: 0;
   width: 100%;
-  height: 2px;         /* molto sottile */
+  height: 2px;     
   background: rgba(255,255,255,0.2);
   overflow: hidden;
 }
 
-/* Riempimento bianco */
 .wave-progress-inner {
   height: 100%;
   top: auto;
   background: #fff;
   width: 0%;
   transition: width 0.1s linear;
-}
+} */
 
 .time-display {
   color: #fff;
@@ -298,14 +297,14 @@ body {
   size: 100%;
 }
 
-/* SPECTROGRAM LOADER E WRAPPER: */
+/* SPECTROGRAM LOADER E WRAPPER:
 .spectrogram-wrapper {
   position: relative;
   width: 100%;
-  height: 100vh; /* oppure 100% se il contenitore padre ha altezza definita */
+  height: 100vh; 
   background-color: #000000;
   overflow: hidden;
-}
+} */
 
 
 /* Slider zoom elegante */
@@ -363,5 +362,5 @@ body {
   backdrop-filter: blur(2px);
   cursor: ew-resize;
   transition: all 0.2s ease;
-  box-shadow: 0 0 6px rgba(0, 255, 255, 0.3);
+  box-shadow: 0 0 6px rgba(0, 255, 255, 0.399);
 }

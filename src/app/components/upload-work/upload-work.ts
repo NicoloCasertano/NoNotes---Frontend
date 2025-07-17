@@ -5,7 +5,6 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/authorization-service';
 import { WorkService } from '../../services/work-service';
-import { WorkModel } from '../../models/work-model';
 
 @Component({
 	standalone: true,
@@ -69,7 +68,7 @@ export class UploadWork implements OnInit{
 		if(!this.file || !this.work.title || !this.work.bpm || !this.work.key) return;
 
 		const targetArtName = this.isAdmin ? this.work.artName?.trim() : this.currentArtName;
-
+		// const targetArtName = this.work.artName?.trim() ? this.currentArtName : this.currentArtName;
 		if (!targetArtName) {
 			console.error('Unvalid Art Name');
 			return;

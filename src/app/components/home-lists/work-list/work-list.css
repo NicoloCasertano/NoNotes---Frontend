@@ -34,10 +34,10 @@
 
 /* Card stile */
 .work-card {
-  margin-top: 2%;
+  margin-top: 5%;
+  margin-left: 2%;
     flex-shrink: 0;
-    min-width: 220px;
-    max-width: 260px;
+    width: 200px;
     height: 400px;
     padding: 1rem;
     border-radius: 10px;
@@ -85,12 +85,19 @@
     color: #fff;
 }
 
+.scroll-button-div {
+    height: auto;
+    width: 3px;
+}
+
 .scroll-button.left {
     left: 0;
+    width: 3px;
 }
 
 .scroll-button.right {
-    right: 0;
+    right: 1%;
+    width: 3px;
 }
 
 
