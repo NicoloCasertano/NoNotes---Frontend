@@ -43,8 +43,8 @@ export class WorkService {
         return this._http.put<WorkModel>(`${this._url}/upload/${id}`, updates);
     }
 
-    uploadWork(form: FormData, options?: any): Observable<any> {
-        return this._http.post<any>(`${this._url}/upload`, form, options);
+    uploadWork(form: FormData): Observable<WorkDto> {
+        return this._http.post<WorkDto>(`${this._url}/upload`, form, {withCredentials: true});
     }
 
     updateWorkFull(id: number, dto: WorkDto): Observable<WorkDto> {

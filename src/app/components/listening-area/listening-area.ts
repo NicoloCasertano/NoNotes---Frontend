@@ -21,7 +21,6 @@ import ZoomPlugin from 'wavesurfer.js/dist/plugins/zoom.js';
 import { WorkService } from '../../services/work-service';
 import { AudioService } from '../../services/audio-service';
 import { FormsModule } from '@angular/forms';
-import { WorkModel } from '../../models/work-model';
 import { WorkDto } from '../../models/dto/work-dto';
 
 @Component({
@@ -31,12 +30,12 @@ import { WorkDto } from '../../models/dto/work-dto';
   	template: `
 		
 		<div class="container">
-			<div class="scroll-container">
-                    <h1 class="title-text">
-                        YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ 
-                        YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ
-                    </h1>
-                </div>
+			<div class="scroll-text-container">
+				<h1 class="title-text">
+					YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ 
+					YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ
+				</h1>
+            </div>
 			
 			<!-- Waveform + Timeline -->
 			<div #waveformContainer class="waveform" [class.loaded]="audioLoaded"></div>
@@ -87,8 +86,8 @@ import { WorkDto } from '../../models/dto/work-dto';
 				<button (click)="enableZoom($event)" [class.active]="zoomActive">Zoom</button>
 				<button (click)="enableEnvelope()" [class.active]="envelopeActive">Envelope</button>
 				<button (click)="enableRegions()" [class.active]="regionsActive">Regions</button>
-				<button (click)="enableHover()" [class.active]="hoverActive">Pointer</button>
-				<button (click)="showSpectrogram()" [class.active]="spectrogramVisible">Spectrogram</button>
+				<button (click)="hoverActive ? disableHover() : enableHover()" [class.active]="hoverActive">Pointer Line</button>
+				<!-- <button (click)="showSpectrogram()" [class.active]="spectrogramVisible">Spectrogram</button> -->
 
 				<!-- <div class="spectrogram-wrapper">
 					<div #spectrogramContainer class="spectrogram"></div>
@@ -97,7 +96,7 @@ import { WorkDto } from '../../models/dto/work-dto';
 			<div class="regions-notes-list">
 				<ul>
 					<li *ngFor="let r of regionsList" (click)="selectRegion(r)" [style.background]="r.color" class="region-item">
-						<strong>{{ r.start | number:'1.1-2' }} - {{ r.end | number:'1.1-2' }}</strong>
+						<strong class="note-region-time">{{ r.start | number:'1.1-2' }} - {{ r.end | number:'1.1-2' }}</strong>
 						<textarea
 							name="nota{{r.id}}"
 							[(ngModel)]="r.nota"
@@ -244,7 +243,7 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 								[TimelinePlugin.create({ container: this.timelineRef.nativeElement })]
 						});
 						this.setupTrackpadZoom();
-						this.spectrogramRef.nativeElement.style.display = 'none';
+						// this.spectrogramRef.nativeElement.style.display = 'none';
 						
 						this.wavesurfer.on('ready', () => {
 							this.audioLoaded = true;
@@ -252,10 +251,6 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 							this.currentTime = 0;
 							this.wavesurfer.setVolume(this.volume);
 						});
-
-						// this.wavesurfer.on('finish', () => {
-						// 	this.playing = false
-						// });
 
 						this.wavesurfer.load(audioUrl);
 
@@ -331,6 +326,11 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 
 	togglePanel() {
 		this.showPanel = !this.showPanel;
+		// if (!this.hoverActive) {
+		// 	this.hover?.destroy();
+		// } else {
+		// 	this.hover?._init;
+		// }
 	}
 
 	//SPECTROGRAMMA
@@ -373,16 +373,24 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 					dragPointFill: 'rgba(255, 255, 255, 0.8)',
 					dragPointStroke: 'rgba(0, 0, 0, 0.5)',
 					points: [
-						{ time: 11.2, volume: 0.5 },
-						{ time: 15.5, volume: 0.8 },
-					],
+						{ time: 1.0, volume: 0.2 },
+						{ time: 2.5, volume: 1.0 },
+						{ time: 4.0, volume: 0.6 },
+					]
 				})
 			);
 			this.envelope.on('points-change', (points) =>
 				console.log('Envelope changed', points)
 			);
+			this.envelopeActive = !this.envelopeActive;
+			this.envelope.onInit();
 		}
-		this.envelopeActive = !this.envelopeActive;
+		if(this.envelopeActive) {
+			this.envelope.destroy();
+			this.envelopeActive = false;
+		} else {
+			this.envelopeActive = true;
+		}
 	}
 
 	//ZOOM
@@ -587,19 +595,27 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		if (!this.hover) {
 			this.hover = this.wavesurfer.registerPlugin(
 				HoverPlugin.create({
-				lineColor: '#ff0000',
-				lineWidth: 1,
-				labelBackground: '#555',
-				labelColor: '#fff',
-				labelSize: '15px',
-				labelPreferLeft: false,
+					lineColor: '#c300ffff',
+					lineWidth: 1,
+					labelBackground: '#555',
+					labelColor: '#fff',
+					labelSize: '15px',
+					labelPreferLeft: false,
 				})
 			);
 		}
+		this.hover.onInit();
 		this.hoverActive = !this.hoverActive;
 		// rimuoviamo o aggiungiamo il canvas pointer
 		const hoverEl = this.waveformRef.nativeElement.querySelector('.wavesurfer-hover-pointer');
 		if (hoverEl) hoverEl.style.display = this.hoverActive ? 'block' : 'none';
+	}
+
+	disableHover() {
+		if (this.hover) {
+			this.hover.destroy();
+		} 
+		this.hoverActive = false;
 	}
 	
 	

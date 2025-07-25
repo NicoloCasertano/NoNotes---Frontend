@@ -37,9 +37,11 @@ export class UploadWork implements OnInit{
 	ngOnInit(): void {
 		this.isAdmin = this._authService.getUserRoles().includes('ROLE_ADMIN');
 
-		this._userService.getUserById(this.userId!).subscribe(userModel => {
-			this.currentArtName = userModel?.artName ?? '';
-		});
+		if (this.userId !== null) {
+			this._userService.getUserById(this.userId).subscribe(userModel => {
+				this.currentArtName = userModel?.artName ?? '';
+			});
+		}
 	}
 
 	onDragOver(event: DragEvent) {
@@ -92,11 +94,12 @@ export class UploadWork implements OnInit{
 		form.append('bpm', this.work.bpm!.toString());
 		form.append('key', this.work.key!);
 		form.append('dataDiCreazione', new Date().toISOString().slice(0, 10));
-
+		
 		this._workService.uploadWork(form).subscribe({
 			next: w => this._router.navigate(['/listening-area', w.workId]),
 			error: err => console.error('Upload fallito:', err)
 		});
+
 	}
 
 	goToUserPage() {

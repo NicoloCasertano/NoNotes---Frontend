@@ -12,6 +12,11 @@
 }
 
 /* NO SAINTZ CHE SI MUOVE */
+.scroll-text-container {
+  overflow: hidden;
+  white-space: nowrap;
+  background-color: #000000; 
+}
 .title-text {
     white-space: nowrap;
     color: rgb(247, 247, 247);
@@ -22,12 +27,6 @@
     z-index: 1;
     top: 0;
     font-size: medium;
-}
-.scroll-text-container {
-  width: 400%;
-  overflow: hidden;
-  white-space: nowrap;
-  background-color: #000000; 
 }
 @keyframes scroll-text {
     0% {
@@ -41,9 +40,9 @@
 /* REGIONS */
 .regions-notes-list {
   margin-top: 20px;
-  max-height: 200px;
+  max-height: 100vh;
   overflow-y: auto;
-  border: 1px solid #ccc;
+  border: none;
   padding: 10px;
   background: #000000;
 }
@@ -67,10 +66,10 @@
 .note-box {
 	position: absolute;
 	top: 0;
-	width: 140px;
+	width: 100px;
 	height: 60px;
 	padding: 4px;
-	box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+	box-shadow: 0 2px 6px rgba(255, 254, 254, 0.2);
   border: 1px solid rgb(255, 255, 255);
 	border-radius: 6px;
 	display: flex;
@@ -87,8 +86,12 @@
 	resize: none;
 	padding: 6px;
 	font-size: 12px;
-	background-color: rgba(255, 255, 255, 0.9);
+	background-color: none;
 	border-radius: 4px;
+}
+.note-region-time{
+  color: rgb(0, 227, 248);
+  text-shadow:0 0 10px #00ffff97;
 }
 
 /* Responsive: su schermi stretti riduci larghezza note-box */
@@ -101,8 +104,7 @@
 
 /* --- Transizione di caricamento audio --- */
 .waveform.loaded,
-#timeline.loaded,
-.spectrogram.loaded {
+#timeline.loaded {
   opacity: 1;
   transform: scale(1);
   transition: opacity 0.8s ease-out, transform 0.6s ease-out;
@@ -110,8 +112,7 @@
 
 /* Waveform con effetto neon */
 .waveform,
-#timeline,
-.spectrogram {
+#timeline {
   opacity: 0;
   transform: scale(0.95);
 }
@@ -123,6 +124,9 @@
   50% {
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.7), 0 0 30px rgba(0, 255, 255, 0.5);
   }
+}
+.waveform {
+  width: 100%;
 }
 
 /* Pulsanti */

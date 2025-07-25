@@ -10,24 +10,24 @@ import { environment } from "../../environment";
     providedIn: 'root'
 })
 export class UserService {
-    private _url: string = environment.apiUrl;
+    private _url: string = "http://localhost:8080/api/users";
     private _http: HttpClient = inject(HttpClient);
     private _authService = inject(AuthService);
 
     getUtentiByUsername(userName: string):Observable<UserNoPassModel[]>{
-        return this._http.get<UserNoPassModel[]>(`${this._url}/users/${userName}`);
+        return this._http.get<UserNoPassModel[]>(`${this._url}/${userName}`);
     }
 
     getUtenteByUtenteId(userId: number):Observable<UserNoPassModel>{
-        return this._http.get<UserNoPassModel>(`${this._url}/users/${userId}`);
+        return this._http.get<UserNoPassModel>(`${this._url}/${userId}`);
     }
 
     getUserByArtName(artName: string):Observable<UserModel[]> {
-        return this._http.get<UserModel[]>(`${this._url}/users/${artName}`);
+        return this._http.get<UserModel[]>(`${this._url}/${artName}`);
     }
 
     getUserById(userId: number) {
-        return this._http.get<UserModel>(`${this._url}/users/${userId}`);
+        return this._http.get<UserModel>(`${this._url}/${userId}`);
     }
 
     private getAuthHeaders() {
@@ -42,7 +42,7 @@ export class UserService {
         const newRole: string = 'ADMIN'
         const params = new HttpParams().set('role', newRole);
         return this._http.put<UserModel>(
-            `${this._url}/users/${userId}/role`,
+            `${this._url}/${userId}/role`,
             null,
             { params }
         );
