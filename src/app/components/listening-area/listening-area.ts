@@ -24,10 +24,10 @@ import { FormsModule } from '@angular/forms';
 import { WorkDto } from '../../models/dto/work-dto';
 
 @Component({
-  	standalone: true,
+	standalone: true,
 	selector: 'app-listening-area',
 	imports: [CommonModule, FormsModule],
-  	template: `
+	template: `
 		
 		<div class="container">
 			<div class="scroll-text-container">
@@ -35,7 +35,7 @@ import { WorkDto } from '../../models/dto/work-dto';
 					YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ 
 					YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ
 				</h1>
-            </div>
+			</div>
 			
 			<!-- Waveform + Timeline -->
 			<div #waveformContainer class="waveform" [class.loaded]="audioLoaded"></div>
@@ -88,19 +88,20 @@ import { WorkDto } from '../../models/dto/work-dto';
 				<button (click)="enableRegions()" [class.active]="regionsActive">Regions</button>
 				<button (click)="hoverActive ? disableHover() : enableHover()" [class.active]="hoverActive">Pointer Line</button>
 				<!-- <button (click)="showSpectrogram()" [class.active]="spectrogramVisible">Spectrogram</button> -->
-
 				<!-- <div class="spectrogram-wrapper">
 					<div #spectrogramContainer class="spectrogram"></div>
 				</div> -->
-			</div>
+			</div><br>
+			<button *ngIf="regionsActive" class="save-all-note" (mousedown)="saveNoteFull()">Send the notes to Doc</button>
 			<div class="regions-notes-list">
 				<ul>
 					<li *ngFor="let r of regionsList" (click)="selectRegion(r)" [style.background]="r.color" class="region-item">
 						<strong class="note-region-time">{{ r.start | number:'1.1-2' }} - {{ r.end | number:'1.1-2' }}</strong>
 						<textarea
-							name="nota{{r.id}}"
+							[name]="'nota' + r.id"
+							[id]="'nota' + r.id"
 							[(ngModel)]="r.nota"
-							(blur)="saveNoteFull(r)"
+							(blur)="saveNoteFast(r)"
 							placeholder="Note ({{ r.start | number:'1.0-2' }} - {{ r.end | number:'1.0-2' }})">
 						</textarea>
 					</li>
@@ -108,7 +109,7 @@ import { WorkDto } from '../../models/dto/work-dto';
 			</div>
 		</div>
 	`,
-  	styleUrls: ['./listening-area.css']
+	styleUrls: ['./listening-area.css']
 })
 export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 	@ViewChild('waveformContainer', { static: true }) waveformRef!: ElementRef;
@@ -174,7 +175,6 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		: null;
 	}
 
-
 	public get audioType(): string {
 		if (!this.audioFileName) return 'audio/mpeg';
 		const ext = this.audioFileName.split('.').pop()?.toLowerCase();
@@ -198,11 +198,56 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		});
 	}
 
-	private getNextColor(): string {
+	private getNextColor() {
 		const color = `hsla(${this.nextRegionHue}, 100%, 50%, 0.3)`;
 		this.nextRegionHue += 15;
 		if (this.nextRegionHue > 330) this.nextRegionHue = 180;
 		return color;
+	}
+
+	ngOnInit() {
+		this.loadRegionsFromNote();
+	}
+
+
+	private guardParsingNote(): void {
+		if (!this.work || !this.work.nota) {
+			console.warn('Nessuna nota da parsare. Work o work.nota mancante');
+			return;
+		}
+		const raw = this.work.nota.trim();
+		console.log('Raw nota value:', raw);
+		console.log(`Lunghezza stringa: ${raw.length}`);
+		if (raw.length > 7) {
+			console.log(`Char at pos 6 (index 6): '${raw.charAt(6)}' (code ${raw.charCodeAt(6)})`);
+		}
+		// Se è un JSON array valido, parse, altrimenti skip
+		if (raw.startsWith('[') && raw.endsWith(']')) {
+			try {
+				const data = JSON.parse(raw);
+				if (Array.isArray(data) && data.every(obj => 'start' in obj && 'end' in obj)) {
+					this.regionsList = data;
+
+					if (this.regionsActive && this.regionsPlugin) {
+						this.regionsList.forEach(r => {
+							this.regionsPlugin!.addRegion({
+								start: r.start,
+								end: r.end,
+								color: r.color,
+								id: r.id
+							});
+						});
+					}
+				} else {
+					throw new Error('Formato non valido, manca start/end');
+				}
+			} catch (err) {
+				console.error('Errore parsing regioni da nota JSON:', err);
+			}
+		} else {
+			console.warn('Nota non in formato JSON, skip parsing regioni:', raw);
+			this.regionsList = [];
+		}
 	}
 	
 
@@ -215,8 +260,11 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
       				console.error('Nessun audio associato a questo work:', work);
 					return;
     			} 
-				const fullName = work.audio.storedFileName;
 
+				this.work = work;
+
+				const fullName = work.audio.storedFileName;
+				console.log(fullName);
 				this.audioFileName = fullName.includes('/') 
 					? fullName.split('/').pop()! 
 					: fullName;
@@ -243,7 +291,6 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 								[TimelinePlugin.create({ container: this.timelineRef.nativeElement })]
 						});
 						this.setupTrackpadZoom();
-						// this.spectrogramRef.nativeElement.style.display = 'none';
 						
 						this.wavesurfer.on('ready', () => {
 							this.audioLoaded = true;
@@ -258,10 +305,12 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 							const container = this.wavesurfer.getWrapper();
 							container.addEventListener('wheel', this.onWheelZoomControl, { passive: false });
 						});
+
 						this.wavesurfer.on('audioprocess', (time: number) => {
 							this.currentTime = time;
 							this.progressPercent = (time / this.duration) * 100;
 						});
+						this.guardParsingNote();
 					},
 					error: err => {
 						console.error('Errore download audio blob ', err)
@@ -269,6 +318,7 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
     					this.loadError = true;
 					}
 				});
+				
 			},
 			error: err => console.error('Errore recupero work', err)
 		});
@@ -326,38 +376,6 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 
 	togglePanel() {
 		this.showPanel = !this.showPanel;
-		// if (!this.hoverActive) {
-		// 	this.hover?.destroy();
-		// } else {
-		// 	this.hover?._init;
-		// }
-	}
-
-	//SPECTROGRAMMA
-	showSpectrogram():void {
-		if (!this.wavesurfer) {
-			console.error('wavesurfer non inizializzato');
-			return;
-		}
-		if (!this.spectrogramPlugin) {
-			this.spectrogramPlugin = this.wavesurfer.registerPlugin(
-				SpectrogramPlugin.create({
-					container: this.spectrogramRef.nativeElement, 
-					labels: true,
-					height: 200,
-					splitChannels: false,
-					scale: 'mel', // or 'linear', 'logarithmic', 'bark', 'erb'
-					frequencyMax: 8000,
-					frequencyMin: 10,
-					fftSamples: 512,
-					labelsBackground: 'rgba(0, 0, 0, 0.1)',
-				})
-			);
-    	}
-		this.spectrogramVisible = !this.spectrogramVisible;
-		this.spectrogramRef.nativeElement.style.display = this.spectrogramVisible
-			? 'block'
-			: 'none';
 	}
 
 	//ENVELOPE
@@ -426,59 +444,20 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		}
 	}
 
-
-	//REGIONS + NOTE
-	enableRegions(): void {
-		if (this.regionsPlugin) {
-			this.regionsActive = !this.regionsActive;
-			this.regionsPlugin.getRegions().forEach(region =>
-				(region.element as HTMLElement).style.display = this.regionsActive ? 'block' : 'none'
-			);
-			return;
+	private loadRegionsFromNote() {
+		if (!this.work || !this.work.nota) return;
+		try {
+			const data = JSON.parse(this.work.nota);
+			this.regionsList = Array.isArray(data) ? data : [];
+			console.log('Regioni caricate', this.regionsList);
+		} catch (err) {
+			console.error('Errore parsing regioni da nota:', err);
+			this.regionsList = [];
 		}
-		const cfg: any = { dragSelection: { slop: 5 }, dragToSeek: false };
-		this.regionsPlugin = this.wavesurfer.registerPlugin(RegionsPlugin.create(cfg));
-		this.regionsActive = true;
-		this.nextRegionHue = 180;
-
-		this.wavesurfer.on('click', () => {
-			if (!this.regionsActive) return;
-			const time = this.wavesurfer.getCurrentTime();
-			const existing = this.regionsPlugin?.getRegions().find((r: any) => time >= r.start && time <= r.end);
-			if (existing) {
-				this.selectedRegionId = existing.id;
-				return;
-			}
-			
-			//se non esiste la regione ne crea una nuova
-			const regionDuration = 5;
-			const start = Math.max(0, time - regionDuration / 2);
-			const end = Math.min(this.duration, time + regionDuration / 2);
-			const color = this.getNextColor();
-			const region = this.regionsPlugin!.addRegion({ start, end, color });
-  			this.selectedRegionId = region.id;
-		});
-
-		this.regionsPlugin.on('region-created', region => {
-			this.onRegionCreate(region);
-			region.element!.addEventListener('click', (ev: MouseEvent) => {
-				if (ev.altKey) {
-					if (confirm('Vuoi cancellare questa region?')) {
-						region.remove(); 
-					}
-				}
-			});
-
-			this.regionsPlugin!.on('region-removed', (region) => {
-				this.onRegionRemove(region);
-			});
-		});
-		console.log(this.regionsList);
-		this.regionsPlugin.on('region-updated', region => this.onRegionUpdate(region));
 	}
 
-	//create - update - delete
-	private onRegionCreate(region: any): void {
+	//REGIONS
+	private onRegionCreate(region: any) {
 		const container = this.wavesurfer.getWrapper(); 
 		const totalWidth = container.clientWidth;
 		const startPercent = region.start / this.duration;
@@ -492,12 +471,11 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 			elementX: elementX,
 			nota: ''
 		};
-
 		this.regionsList.push(regionData);
 		this.persistNotes();
 	}
 
-	private onRegionUpdate(region: any): void {
+	private onRegionUpdate(region: any) {
 		const r = this.regionsList.find(r => r.id === region.id);
 		if (r) {
 			r.start = region.start;
@@ -511,8 +489,9 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		}
   	}
 
-	private onRegionRemove(region: any): void {
+	private onRegionRemove(region: any) {
 		this.regionsList = this.regionsList.filter(r => r.id !== region.id);
+		region.remove();
 		if (this.selectedRegionId === region.id) {
 			this.selectedRegionId = null;
 		}
@@ -532,39 +511,36 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 
 	saveNoteFast(region: any): void {
 		if(!this.work) return;
-		this.work.nota = region.nota;
-		this.workService.updateWork(this.work.workId, { nota: region.nota }).subscribe({
-			next: res => console.log('Nota salvata con update rapido', res),
-			error: err => console.error(err),
-		});
+		const target = this.regionsList.find(r => r.id === region.id);
+		if (target) target.nota = region.nota;
+		this.persistNotes();
 	}
 
-	saveNoteFull(region: any): void {
+	public saveNoteFull() {
 		if(!this.work) return;
+
+		this.regionsList = this.regionsList.filter(region => region.nota && region.nota.trim().length > 0);
+
+		const payload = JSON.stringify(this.regionsList);
+		
 		const dto: WorkDto = {
 			workId: this.work.workId,
 			title: this.work.title,
 			bpm: this.work.bpm,
 			key: this.work.key,
-			
-			nota: region.nota,
+			nota: payload
 		};
+		
 		this.workService.updateWorkFull(this.work.workId, dto).subscribe({
-			next: res => console.log('Nota salvata con update completo', res),
-			error: err => console.error(err),
+			next: res => console.log('Tutte le note salvate con successo', res),
+			error: err => console.error(err)
 		});
 	}
 
 	private persistNotes(): void {
-		
-		const workId = Number(this.route.snapshot.paramMap.get('id'));
-		const work = this.workService.findWorkById(workId);
-
-		if(!work) return;
+		if (!this.work) return;
 
 		const payload = JSON.stringify(this.regionsList);
-
-		if (!this.work) return;
 
 		const dto: WorkDto = {
 			workId: this.work.workId,
@@ -573,7 +549,6 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 			key: this.work.key,
 			nota: payload
 		};
-		this.workService.updateWork(workId, { nota: payload }).subscribe();
 	}
 
 	updateRegionPositions(): void {
@@ -583,6 +558,42 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		});
 	}
 
+	enableRegions(): void {
+		if (this.regionsPlugin) {
+			this.regionsActive = !this.regionsActive;
+			this.regionsPlugin.getRegions().forEach(region =>
+				(region.element as HTMLElement).style.display = this.regionsActive ? 'block' : 'none'
+			);
+			return;
+		}
+		const cfg: any = { dragSelection: { slop: 5 }, dragToSeek: false };
+		this.regionsPlugin = this.wavesurfer.registerPlugin(RegionsPlugin.create(cfg));
+		this.regionsActive = true;
+		this.nextRegionHue = 180;
+
+		this.wavesurfer.on('click', () => {
+			if (!this.regionsActive) return;
+				const time = this.wavesurfer.getCurrentTime();
+				const existing = this.regionsPlugin?.getRegions().find((r: any) => time >= r.start && time <= r.end);
+			if (existing) {
+				this.selectedRegionId = existing.id;
+				return;
+			}
+			const regionDuration = 5;
+			const start = Math.max(0, time - regionDuration / 2);
+			const end = Math.min(this.duration, time + regionDuration / 2);
+			const color = this.getNextColor();
+			const region = this.regionsPlugin!.addRegion({ start, end, color });
+			this.selectedRegionId = region.id;
+			});
+
+		this.regionsPlugin.on('region-created', region => this.onRegionCreate(region));		
+		this.regionsPlugin.on('region-updated', region => this.onRegionUpdate(region));
+		this.regionsPlugin.on('region-removed', region => this.onRegionRemove(region));
+	}
+
+
+	//TIME LINE
 	enableTimeline() {
 		if (!this.timeline) {
 		this.timeline = this.wavesurfer.registerPlugin(
@@ -591,6 +602,7 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		}
 	}
 
+	//HOVER
 	enableHover() {
 		if (!this.hover) {
 			this.hover = this.wavesurfer.registerPlugin(

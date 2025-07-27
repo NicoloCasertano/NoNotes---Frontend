@@ -7,4 +7,5 @@ export interface UserModel {
     email: string;
     artName: string;
     works: WorkModel[];
+    authorities: string[];
 }

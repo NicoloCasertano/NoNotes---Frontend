@@ -35,8 +35,8 @@ export class UploadWork implements OnInit{
 
 	constructor(private http: HttpClient) {}
 	ngOnInit(): void {
-		this.isAdmin = this._authService.getUserRoles().includes('ROLE_ADMIN');
-
+		const roles = this._authService.getUserRoles();
+		this.isAdmin = Array.isArray(roles) && roles?.includes('ROLE_ADMIN');
 		if (this.userId !== null) {
 			this._userService.getUserById(this.userId).subscribe(userModel => {
 				this.currentArtName = userModel?.artName ?? '';
@@ -76,7 +76,7 @@ export class UploadWork implements OnInit{
 		if(!this.file || !this.work.title || !this.work.bpm || !this.work.key) return;
 		
 		const userRoles = this._authService.getUserRoles();
-		this.isAdmin = userRoles.includes('ROLE_ADMIN');
+		this.isAdmin = Array.isArray(userRoles) && userRoles.includes('ROLE_ADMIN');
 
 		const targetArtName = this.isAdmin 
 			? this.work.artName?.trim() 

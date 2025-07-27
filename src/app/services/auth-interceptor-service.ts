@@ -1,36 +1,35 @@
-import { HttpErrorResponse, HttpInterceptorFn } from "@angular/common/http";
-import { inject } from "@angular/core";
+import { HttpErrorResponse, HttpEvent, HttpHandler, HttpInterceptor, HttpInterceptorFn, HttpRequest } from "@angular/common/http";
+import { inject, Injectable } from "@angular/core";
 import { AuthService } from "./authorization-service";
 import { Router } from "@angular/router";
-import { catchError, throwError } from "rxjs";
+import { catchError, Observable, throwError } from "rxjs";
 
-export const authInterceptorFn: HttpInterceptorFn = (req, next) => {
-    const authService = inject(AuthService);
-    const token = authService.getToken();
-    const router = inject(Router);
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+  constructor(private authService: AuthService) {}
+
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const token = this.authService.getToken();
+    // Paths pubblici: login, register e GET audio
+    const publicPaths = [
+      '/api/auth/login',
+      '/api/auth/register',
+      '/api/audios/'
+    ];
+    // Controlla se l'URL corrisponde a uno dei path pubblici
+    const isPublic = publicPaths.some(path => req.url.includes(path));
 
     let authReq = req;
-
-    // Includi il token su TUTTE le chiamate tranne quelle GET pubbliche
-    if (!(req.url.match(/\/api\/audios\/.+$/))) {
-        if (token) {
-            authReq = req.clone({
-                headers: req.headers.set('Authorization', `Bearer ${token}`)
-            });
-        } else {
-            console.warn('[Interceptor] Token non trovato');
-        }
+    if (!isPublic) {
+      if (token) {
+        authReq = req.clone({
+          headers: req.headers.set('Authorization', `Bearer ${token}`)
+        });
+      } else {
+        console.warn('[Interceptor] Token non trovato');
+      }
     }
+    return next.handle(authReq);
+  }
+}
 
-    return next(authReq).pipe(
-        catchError((error: HttpErrorResponse) => {
-            if (error.status === 401 || error.status === 403) {
-                if (!error.url?.includes('/api/users/')) {
-                    authService.logout();
-                    router.navigate(['/log-in-area']);
-                }
-            }
-            return throwError(() => error);
-        })
-    );
-};

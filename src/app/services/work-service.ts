@@ -40,7 +40,7 @@ export class WorkService {
     }
 
     updateWork(id: number, updates: Partial<WorkModel>): Observable<WorkModel> {
-        return this._http.put<WorkModel>(`${this._url}/upload/${id}`, updates);
+        return this._http.put<WorkModel>(`http://localhost:8080/api/works/upload/${id}`, updates);
     }
 
     uploadWork(form: FormData): Observable<WorkDto> {

@@ -24,7 +24,7 @@ export class AuthService {
         return this._http.post<JwtTokenModel>(`${this._url}/register-area`, data);
     }
 
-    login(credentials: { email:string; password: string}): Observable<JwtTokenModel & {authorities: string[]}> {
+    login(credentials: { email:string; password: string}) {
         return this._http.post<JwtTokenModel & {authorities: string[]}>(`${this._url}/log-in-area`, credentials)
             .pipe(tap(resp => {
                 this.setToken(resp.token);
@@ -62,9 +62,10 @@ export class AuthService {
         //console.log(this.decodePayload());
     }
     
-    getUserRoles(): string[] {
+    getUserRoles(): string | null{
         const raw = localStorage.getItem('user_roles');
-        return raw ? JSON.parse(raw) : [];
+        const role: string[] = raw ? JSON.parse(raw) : [];
+        return this.saveRoles.length > 0 ? role[0] : null; 
     }
     
     decodePayload(): JwtPayloadModel | null {
@@ -79,8 +80,8 @@ export class AuthService {
         return null;
         }
     }
-    hasRole(role: string): boolean {
-        return this.getUserRoles().includes(role);
+    private saveRoles(authorities: string[]) {
+        localStorage.setItem('user_roles', JSON.stringify(authorities));
     }
     getUserEMail():string | null {
         const p = this.decodePayload();
