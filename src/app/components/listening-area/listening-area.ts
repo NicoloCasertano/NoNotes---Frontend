@@ -11,7 +11,6 @@ import {
 import { ActivatedRoute } from '@angular/router';
 
 import WaveSurfer from 'wavesurfer.js';
-import SpectrogramPlugin from 'wavesurfer.js/dist/plugins/spectrogram.esm.js'
 import EnvelopePlugin from 'wavesurfer.js/dist/plugins/envelope.js';
 import HoverPlugin from 'wavesurfer.js/dist/plugins/hover.js';
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.js';
@@ -22,6 +21,7 @@ import { WorkService } from '../../services/work-service';
 import { AudioService } from '../../services/audio-service';
 import { FormsModule } from '@angular/forms';
 import { WorkDto } from '../../models/dto/work-dto';
+import { __rewriteRelativeImportExtension } from 'tslib';
 
 @Component({
 	standalone: true,
@@ -67,7 +67,7 @@ import { WorkDto } from '../../models/dto/work-dto';
 					></div>
 				</div>
 
-				<button (click)="togglePanel()">Plugins</button>
+				<button (click)="togglePanel()" class="plug-ins">Plugins</button>
 				<div *ngIf="zoomActive" class="zoom-slider-wrapper">
 					<input
 						id="zoom-slider"
@@ -84,13 +84,10 @@ import { WorkDto } from '../../models/dto/work-dto';
 			<!-- Pannello aggiuntivo (slide in/out) -->
 			<div class="slide-panels" [class.open]="showPanel && audioLoaded">
 				<button (click)="enableZoom($event)" [class.active]="zoomActive">Zoom</button>
-				<button (click)="enableEnvelope()" [class.active]="envelopeActive">Envelope</button>
 				<button (click)="enableRegions()" [class.active]="regionsActive">Regions</button>
 				<button (click)="hoverActive ? disableHover() : enableHover()" [class.active]="hoverActive">Pointer Line</button>
-				<!-- <button (click)="showSpectrogram()" [class.active]="spectrogramVisible">Spectrogram</button> -->
-				<!-- <div class="spectrogram-wrapper">
-					<div #spectrogramContainer class="spectrogram"></div>
-				</div> -->
+				<button (click)="envelopeActive ? disableEnvelope() : enableEnvelope()" [class.active]="envelopeActive">Envelope</button>
+
 			</div><br>
 			<button *ngIf="regionsActive" class="save-all-note" (mousedown)="saveNoteFull()">Send the notes to Doc</button>
 			<div class="regions-notes-list">
@@ -120,8 +117,9 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 
 	audioFileName?: string;
 	private envelope?: ReturnType<typeof EnvelopePlugin.create>;
+
 	private zoom?: ReturnType<typeof ZoomPlugin.create>;
-	// public regions?: ReturnType<typeof RegionsPlugin.create>;
+	public regions?: ReturnType<typeof RegionsPlugin.create>;
 	private timeline?: ReturnType<typeof TimelinePlugin.create>;
 	private hover?: ReturnType<typeof HoverPlugin.create>;
 	private regionsPlugin?: ReturnType<typeof RegionsPlugin.create>;
@@ -134,10 +132,12 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 	) {}
 
 	private isMobile = top!.matchMedia('(max-width: 900px)').matches;
-	private spectrogramPlugin?: ReturnType<typeof SpectrogramPlugin.create>;
 	private nextRegionHue = 180;
 	private zoomListenerSet = false;
-	
+	private prevVolume = 1;
+	private spaceListenerRegistered = false;
+	private envelopePlugin: any;
+  	public envelopePoints: { time: number, volume: number }[] = [];
 
 	//dichiarazioni per wavesurfer
 	playing = false;
@@ -148,12 +148,9 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 	zoomActive     = false;
 	regionsActive  = false;
 	hoverActive    = false;
-	// spectrogramActive = false;
 	loading = true;
   	waveformReady = false;
   	loadError = false;
-	spectrogramVisible = false;
-	spectrogramLoading = false;
 	zoomLevel: number = 1;
 	maxZoom: number = 200;
 	minZoom: number = 1;
@@ -162,12 +159,11 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 	duration = 0;
 	progressPercent = 0;
 	volume = 1;
-	private prevVolume = 1;
 	regionsList: Array<{ id: string; start: number; end: number; color: string; nota: string; elementX: number }> = [];
 	selectedRegionId: string | null = null;
 	work: WorkDto | undefined;
 
-	//METODI LISTENING AREA
+	//FUNZIONI LISTENING AREA
 
 	public get fullUrl():string | null  {
 		return this.audioFileName
@@ -221,7 +217,7 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		if (raw.length > 7) {
 			console.log(`Char at pos 6 (index 6): '${raw.charAt(6)}' (code ${raw.charCodeAt(6)})`);
 		}
-		// Se è un JSON array valido, parse, altrimenti skip
+		
 		if (raw.startsWith('[') && raw.endsWith(']')) {
 			try {
 				const data = JSON.parse(raw);
@@ -237,6 +233,11 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 								id: r.id
 							});
 						});
+					}
+					const parsed = JSON.parse(raw);
+					if (parsed.envelope && this.envelopePlugin) {
+						this.envelopePlugin.setPoints(parsed.envelope);
+						console.log('Envelope ripristinato con', parsed.envelope);
 					}
 				} else {
 					throw new Error('Formato non valido, manca start/end');
@@ -280,27 +281,56 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 						this.wavesurfer = WaveSurfer.create({
 							container: this.waveformRef.nativeElement,
 							waveColor: '#00ffff',
-							progressColor: '#ffffff',
+							progressColor: '#005e5fa9',
 							cursorColor: '#333',
 							backend: 'MediaElement',
 							mediaControls: false,
 							dragToSeek: true,
-							minPxPerSec: 100,
-							height: 100,
+							minPxPerSec: 10,
+							height: 300,
 							plugins: 
-								[TimelinePlugin.create({ container: this.timelineRef.nativeElement })]
+								[
+									TimelinePlugin.create({ container: this.timelineRef.nativeElement }),
+									EnvelopePlugin.create({
+										volume: 0,
+										lineColor: 'transparent',
+										dragPointSize: 5,
+										dragPointFill: 'rgba(156, 3, 3, 1)',
+										dragPointStroke: 'rgba(156, 3, 3, 1)',
+										dragLine: true
+									})as ReturnType<typeof EnvelopePlugin.create>
+								]
 						});
+						this.envelope?.onInit();
+						this.wavesurfer.load(audioUrl);
 						this.setupTrackpadZoom();
+						this.waveformRef.nativeElement.style.position = 'relative';
+						this.waveformRef.nativeElement.style.zIndex = '0';
 						
+
 						this.wavesurfer.on('ready', () => {
 							this.audioLoaded = true;
 							this.duration = this.wavesurfer.getDuration();
 							this.currentTime = 0;
+
 							this.wavesurfer.setVolume(this.volume);
+							
+							
+						});
+						if (this.envelopeActive) {
+							this.waveformRef.nativeElement.addEventListener('dblclick', this.handleEnvelopeActivation.bind(this));
+						}
+
+						this.wavesurfer.on('click', (relativeX: number) => {
+							const fraction = relativeX;
+							const time = fraction * this.wavesurfer.getDuration();
+
+							if (!this.wavesurfer.isPlaying() && !this.envelopeActive) {
+								this.wavesurfer.seekTo(fraction);
+							}
 						});
 
-						this.wavesurfer.load(audioUrl);
-
+						
 						this.wavesurfer.on('interaction', () => {
 							const container = this.wavesurfer.getWrapper();
 							container.addEventListener('wheel', this.onWheelZoomControl, { passive: false });
@@ -309,7 +339,8 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 						this.wavesurfer.on('audioprocess', (time: number) => {
 							this.currentTime = time;
 							this.progressPercent = (time / this.duration) * 100;
-						});
+						}); 
+
 						this.guardParsingNote();
 					},
 					error: err => {
@@ -322,6 +353,13 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 			},
 			error: err => console.error('Errore recupero work', err)
 		});
+	}
+	ensureSingleEnvelopePoint(time: number) {
+		if (!this.envelope) return;
+
+		this.envelopePoints = this.envelopePoints.filter(p => Math.abs(p.time - time) >= 0.01);
+		this.envelope.setPoints(this.envelopePoints);
+		this.envelope.addPoint({ time, volume: this.volume });
 	}
 
 	//PLAY STOP AND TIMELINE WITH SS & MM + VOLUME
@@ -379,36 +417,54 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 	}
 
 	//ENVELOPE
-  	enableEnvelope() {
+	enableEnvelope() {
 		if (!this.envelope) {
+			this.handleEnvelopeActivation();
+		}
+	}
+
+	handleEnvelopeActivation() {
+		if (!this.envelopeActive) {
 			this.envelope = this.wavesurfer.registerPlugin(
-				EnvelopePlugin.create({
-					volume: 0.8,
-					lineColor: 'rgba(4, 9, 56, 0.42)',
-					lineWidth: '4',
-					dragPointSize: this.isMobile ? 20 : 8,
-					dragLine: !this.isMobile,
-					dragPointFill: 'rgba(255, 255, 255, 0.8)',
-					dragPointStroke: 'rgba(0, 0, 0, 0.5)',
-					points: [
-						{ time: 1.0, volume: 0.2 },
-						{ time: 2.5, volume: 1.0 },
-						{ time: 4.0, volume: 0.6 },
-					]
+				EnvelopePlugin.create({ 
+					volume: this.volume
 				})
 			);
-			this.envelope.on('points-change', (points) =>
-				console.log('Envelope changed', points)
-			);
-			this.envelopeActive = !this.envelopeActive;
-			this.envelope.onInit();
-		}
-		if(this.envelopeActive) {
-			this.envelope.destroy();
-			this.envelopeActive = false;
-		} else {
+			console.log('ciao');
+
+			this.envelope.addPoint({ time: this.wavesurfer.getCurrentTime(), volume: this.volume });
+
+			this.envelope.on('points-change', (points: any[]) => {
+				this.envelopePoints = points;
+			});
+
 			this.envelopeActive = true;
 		}
+	}
+
+	disableEnvelope() {
+		if (this.envelope) {
+			this.envelope.destroy();
+			this.envelope = undefined;
+		}
+		this.envelopeActive = false;
+	}
+
+	addEnvelopePoint(time:number, volume:number) {
+		if(this.envelope && this.wavesurfer) {
+			const currentTime = this.wavesurfer.getCurrentTime();
+			this.envelope.addPoint({ time: currentTime, volume: 0.8 });
+		}
+		this.persistNotes();
+	}
+
+	removeEnvelopePoint(index: number) {
+		if(this.envelopePlugin) {
+			this.envelopePlugin.setPoints([]);
+			this.envelopeActive = false;
+			this.envelopePlugin.setVolume(this.volume);
+		}
+		this.persistNotes();
 	}
 
 	//ZOOM
@@ -416,8 +472,8 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		if (!this.zoom) {
 			this.zoom = this.wavesurfer.registerPlugin(
 				ZoomPlugin.create({
-					scale: 0.5,
-					maxZoom: 1000
+					scale: 0.99,
+					maxZoom: 500
 				})
 			);
 			if(!this.zoomListenerSet) {
@@ -426,24 +482,24 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 				});
 				this.zoomListenerSet = true;
 			}
-			
 		}
 
 		this.zoomActive = !this.zoomActive;
 
-		const level = this.zoomActive ? this.zoomLevel : 1;
+		const level = this.zoomActive ? this.zoomLevel : 0.90;
 		this.wavesurfer.zoom(level);
 		this.updateRegionPositions();
 	}
 
 	onZoomSliderInput(event: Event): void {
-		const pxPerSec = parseInt((event.target as HTMLInputElement).value, 10);
+		const pxPerSec = parseInt((event.target as HTMLInputElement).value, 11);
 		this.zoomLevel = pxPerSec;
 		if (this.zoomActive) {
 			this.wavesurfer.zoom(pxPerSec);
 		}
 	}
 
+	//REGIONS
 	private loadRegionsFromNote() {
 		if (!this.work || !this.work.nota) return;
 		try {
@@ -456,8 +512,8 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		}
 	}
 
-	//REGIONS
 	private onRegionCreate(region: any) {
+		
 		const container = this.wavesurfer.getWrapper(); 
 		const totalWidth = container.clientWidth;
 		const startPercent = region.start / this.duration;
@@ -569,7 +625,7 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		const cfg: any = { dragSelection: { slop: 5 }, dragToSeek: false };
 		this.regionsPlugin = this.wavesurfer.registerPlugin(RegionsPlugin.create(cfg));
 		this.regionsActive = true;
-		this.nextRegionHue = 180;
+		this.nextRegionHue = 180; 
 
 		this.wavesurfer.on('click', () => {
 			if (!this.regionsActive) return;
