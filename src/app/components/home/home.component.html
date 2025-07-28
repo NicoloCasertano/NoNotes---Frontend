@@ -2,19 +2,29 @@
 
 
 <div class="gif-div">
-    <h1>NO SAINTZ WEBB APP</h1>
+    <video autoplay muted loop poster="" class="video">
+        <source src="https://imgur.com/7iDhJKs.mp4">
+    </video>
+    <div class="logo"></div>
     <h3>"YOU NEED NO SAINTZ"</h3>
 
     <div id="viewArea">
     @if (workList.length) {
         <app-work-list [works]='this.workList'></app-work-list>
     }        
-
-    <div id="advSe"></div>
-    <div class="close-advSe">
-        <button (click)="closeAdv()">◀</button>
-        <button (click)="goToUserPage()">Vai al tuo Profilo</button>
-    </div>
 </div>
-<!-- TODO: da mettere audio nel model beat, controllare il backend e fare anche beatservice qui nel frontend -->
 <div class="beat-list"></div>
+
+<!-- <div class="gallery">
+    <img src="https://imgur.com/YbETqw8.jpg" class="photo">   
+</div>
+<div class="gallery2">
+     <img src="https://imgur.com/TZibG8P.jpg" class="photo">
+</div>
+<div class="gallery3">
+     <img src="https://imgur.com/fhg4ndx.jpg" class="photo">
+</div> -->
+
+<div class="vai-al-profilo">
+    <button (click)="goToUserPage()">Vai al tuo Profilo</button>
+</div>
