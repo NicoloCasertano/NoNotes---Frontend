@@ -15,7 +15,7 @@ import { WorkList } from "../home-lists/work-list/work-list";
 @Component({
   selector: 'app-home-component',
   standalone: true,
-  imports: [CommonModule, WorkList],
+  imports: [CommonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
