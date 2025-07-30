@@ -1,4 +1,6 @@
 <body>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <button (click)="goToHome()" class="logo"></button>
     <div class="blur-vertical-line"></div>
     <div class="works-div">
@@ -24,4 +26,23 @@
     </div>
     <p *ngIf="success" class="text-success">Utente promosso!</p>
     <p *ngIf="error" class="text-error">Errore: {{ error }}</p>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <a href="mailto:info.nosaintz@gmail.com" target="_blank">
+                    <i class="fas fa-envelope"></i>
+                </a>
+            </div>
+            <div class="footer-col">
+                <h4>Follow Us</h4>
+                <ul class="social-icons">
+                    <li><a href="https://open.spotify.com/playlist/6Pa1vPI5eSME4VjJwM6RUI" target="_blank"><i class="fab fa-spotify"></i></a></li>
+                    <li><a href="https://www.instagram.com/youneednosaintz" target="_blank"><i class="fab fa-instagram"></i></a></li>
+                    <li><a href="https://www.facebook.com/youneednosaintz" target="_blank"><i class="fab fa-facebook-f"></i></a></li>
+                </ul>
+            </div>
+        </div>
+     </footer>
 </body>

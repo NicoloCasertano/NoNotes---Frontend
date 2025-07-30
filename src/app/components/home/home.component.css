@@ -123,7 +123,7 @@ p {
     top: 17%;
     text-align: center;
     transition: all 0.3s ease;
-    border-radius: 6px;
+    border-radius: 10px;
     padding: 2% 2%;
 }
 p:hover {

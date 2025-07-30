@@ -148,3 +148,67 @@ a.upload-work:hover {
     background-color: transparent;
 }
 
+
+.site-footer {
+  width: 100%;
+  background-color: #000;
+  position: relative;
+  z-index: 200;
+  padding: 2rem 0;
+}
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 4rem;
+  justify-content: center;
+  align-items: flex-start;
+}
+.footer-col h4 {
+  color: #fff;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  display: flex;
+}
+.footer-col a {
+  color: #fff;
+  text-decoration: none;
+  justify-content: center;
+}
+.footer-col a i {
+  font-size: 1.5rem;
+  transition: transform 0.3s, color 0.3s;
+}
+.footer-col a:hover i {
+  transform: scale(1.1);
+  color: #0ff;
+}
+
+/* Lista icone social */
+.social-icons {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 1rem;
+}
+.social-icons li a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: #222;
+  color: #fff;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+.social-icons li a:hover {
+  background-color: #0ff;
+  box-shadow: 0 0 8px rgba(0,255,255,0.6);
+}
+/* Colori specifici sui singoli hover, se vuoi */
+.social-icons li a[href*="spotify"]:hover { background-color: #1DB954; }
+.social-icons li a[href*="instagram"]:hover { background: radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%); }
+.social-icons li a[href*="facebook"]:hover { background-color: #1877F2; }

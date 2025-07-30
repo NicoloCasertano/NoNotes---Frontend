@@ -28,7 +28,8 @@ import { __rewriteRelativeImportExtension } from 'tslib';
 	selector: 'app-listening-area',
 	imports: [CommonModule, FormsModule],
 	template: `
-		
+		<link rel="stylesheet"
+  			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 		<div class="container">
 			<div class="scroll-text-container">
 				<h1 class="title-text">
@@ -36,7 +37,12 @@ import { __rewriteRelativeImportExtension } from 'tslib';
 					YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ
 				</h1>
 			</div>
-			
+			<div class="img-prewave">
+				<h1 class="work-title">{{work?.title?.toUpperCase()}}</h1>
+				<div class="blur"></div>
+				<div class="blur2"></div>
+				<div class="blur3"></div>
+			</div>
 			<!-- Waveform + Timeline -->
 			<div #waveformContainer class="waveform" [class.loaded]="audioLoaded"></div>
 			<div #timelineContainer id="timeline" [class.loaded]="audioLoaded"></div>
@@ -66,8 +72,9 @@ import { __rewriteRelativeImportExtension } from 'tslib';
 					[style.width.%]="progressPercent"
 					></div>
 				</div>
-
-				<button (click)="togglePanel()" class="plug-ins">Plugins</button>
+				<div class="plug-ins-div">
+					<button (click)="togglePanel()" class="plug-ins">Plugins</button>
+				</div>
 				<div *ngIf="zoomActive" class="zoom-slider-wrapper">
 					<input
 						id="zoom-slider"
@@ -104,6 +111,22 @@ import { __rewriteRelativeImportExtension } from 'tslib';
 					</li>
 				</ul>
 			</div>
+			<footer class="site-footer">
+				<div class="footer-inner">
+					<div class="footer-col">
+						<h4>Contact Us</h4>
+						<a href="mailto:info.nosaintz@gmail.com" target="_blank"><i class="fas fa-envelope"></i></a>
+					</div>
+					<div class="footer-col">
+						<h4>Follow Us</h4>
+						<ul class="social-icons">
+							<li><a href="https://open.spotify.com/playlist/6Pa1vPI5eSME4VjJwM6RUI" target="_blank"><i class="fab fa-spotify"></i></a></li>
+							<li><a href="https://www.instagram.com/youneednosaintz" target="_blank"><i class="fab fa-instagram"></i></a></li>
+							<li><a href="https://www.facebook.com/youneednosaintz" target="_blank"><i class="fab fa-facebook-f"></i></a></li>
+						</ul>
+					</div>
+				</div>
+			</footer>
 		</div>
 	`,
 	styleUrls: ['./listening-area.css']

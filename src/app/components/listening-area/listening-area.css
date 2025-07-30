@@ -38,6 +38,69 @@
     }
 }
 
+.img-prewave {
+  position: relative;
+  width: 100%;
+  height: 20vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  z-index: 1;
+}
+.img-prewave::before {
+  content: "";
+  background-image: url(https://imgur.com/nMicj0C.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.9;
+  z-index: 0;
+}
+.work-title {
+  color: rgba(255, 255, 255, 0.859);
+  font-size: 2.6rem;
+  text-shadow: 0 0 3px rgba(201, 255, 255, 0.567), 0 0 7px white;
+  z-index: 2;
+  position: absolute;
+  text-align: center;
+}
+.blur {
+  background-color: black;
+  filter: blur(10px);
+  width: 200%;
+  height: 22%;
+  position: absolute;
+  top: 88%;
+  left: -50%;
+  z-index: 1;
+}
+.blur2 {
+  background-color: black;
+  filter: blur(5px);
+  border-radius: 30%;
+  position: absolute;
+  top: 47%;
+  left: 0.5;
+  z-index: 1;
+  width: 60%;
+  height: 9%;
+}
+.blur3 {
+  background-color: black;
+  filter: blur(12px);
+  border-radius: 30%;
+  position: absolute;
+  top: 26%;
+  left: 0.5;
+  z-index: 1;
+  width: 20%;
+  height: 45%;
+}
+
 /* REGIONS */
 .regions-notes-list {
   margin-top: 20px;
@@ -197,24 +260,6 @@
   cursor: pointer;
 }
 
-/* .wave-progress {
-  position: absolute;
-  bottom: 0;          
-  left: 0;
-  width: 100%;
-  height: 2px;     
-  background: rgba(255,255,255,0.2);
-  overflow: hidden;
-}
-
-.wave-progress-inner {
-  height: 100%;
-  top: auto;
-  background: #fff;
-  width: 0%;
-  transition: width 0.1s linear;
-} */
-
 .time-display {
   color: #fff;
   font-family: monospace;
@@ -247,8 +292,11 @@ button:hover {
   background-color: #0a0a0a;
 }
 
+.plug-ins-div {
+  width: 100vh;
+}
 .plug-ins {
-  margin-left: 11%;
+  position: relative;
 }
 
 .slide-panels {
@@ -281,6 +329,7 @@ button:hover {
   border: 1px solid #0ff;
   box-shadow: 0 0 5px #0ff;
   transition: 0.3s;
+  position: relative;
 }
 
 .slide-panels button:hover {
@@ -374,3 +423,67 @@ body {
   transition: all 0.2s ease;
   box-shadow: 0 0 6px rgba(0, 255, 255, 0.399);
 }
+
+.site-footer {
+  width: 100%;
+  background-color: #000;
+  position: relative;
+  z-index: 200;
+  padding: 2rem 0;
+}
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 4rem;
+  justify-content: center;
+  align-items: flex-start;
+}
+.footer-col h4 {
+  color: #fff;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  display: flex;
+}
+.footer-col a {
+  color: #fff;
+  text-decoration: none;
+  justify-content: center;
+}
+.footer-col a i {
+  font-size: 1.5rem;
+  transition: transform 0.3s, color 0.3s;
+}
+.footer-col a:hover i {
+  transform: scale(1.1);
+  color: #0ff;
+}
+
+/* Lista icone social */
+.social-icons {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 1rem;
+}
+.social-icons li a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: #222;
+  color: #fff;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+.social-icons li a:hover {
+  background-color: #0ff;
+  box-shadow: 0 0 8px rgba(0,255,255,0.6);
+}
+/* Colori specifici sui singoli hover, se vuoi */
+.social-icons li a[href*="spotify"]:hover { background-color: #1DB954; }
+.social-icons li a[href*="instagram"]:hover { background: radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%); }
+.social-icons li a[href*="facebook"]:hover { background-color: #1877F2; }
