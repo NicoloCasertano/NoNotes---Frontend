@@ -1,6 +1,6 @@
-import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpHeaders, HttpParams, httpResource } from "@angular/common/http";
 import { Injectable, inject } from "@angular/core";
-import { Observable } from "rxjs";
+import { catchError, map, Observable, of } from "rxjs";
 import { UserNoPassModel } from "../models/user-nopass-model";
 import { UserModel } from "../models/user-model";
 import { AuthService } from "./authorization-service";
@@ -45,6 +45,16 @@ export class UserService {
             `${this._url}/${userId}/role`,
             null,
             { params }
+        );
+    }
+    getAllUsers(): Observable<UserModel[]> {
+        return this._http.get<UserModel[] | UserModel>(`${this._url}/all`)
+        .pipe(
+            map(res => Array.isArray(res) ? res : [res]),
+            catchError(err => {
+                console.error('Errore HTTP getAllUsers', err);
+                return of([] as UserModel[]);
+            })
         );
     }
 }

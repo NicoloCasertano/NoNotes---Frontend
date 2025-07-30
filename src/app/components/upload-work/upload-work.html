@@ -20,19 +20,28 @@
             <input type="text" [(ngModel)]="work.title" name="title" required class="title"/>
         </label>
 
-        <div *ngIf="isAdmin">
-            <label>Artista:</label>
-            <input type="text"[(ngModel)]="work.artName" name="artName" placeholder="Nome d'arte"/>  
-        </div>
+        <div>
+            <label for="artNameSelect">Artista:</label>
+            <select
+                id="artNameSelect"
+                name="artName"
+                [(ngModel)]="work.artName"
+                required
+            >
+                <option value="" disabled>— Select an Artist —</option>
+                <option *ngFor="let name of artNames" [value]="name">
+                {{ name }}
+                </option>
+            </select>
+         </div>
         
-
         <label>BPM:
             <input type="number" [(ngModel)]="work.bpm" name="bpm" required class="bpm"/>
         </label>
 
         <label>Tonalità:
             <select [(ngModel)]="work.key" name="key" required class="key">
-            <option *ngFor="let key of keys" [value]="key">{{ key }}</option>
+                <option *ngFor="let key of keys" [value]="key">{{ key }}</option>
             </select>
         </label>
 

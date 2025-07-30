@@ -6,6 +6,9 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/authorization-service';
 import { WorkService } from '../../services/work-service';
 import { UserService } from '../../services/user-service';
+import { jwtDecode } from 'jwt-decode';
+import { UserModel } from '../../models/user-model';
+import { ListeningArea } from '../listening-area/listening-area';
 
 @Component({
 	standalone: true,
@@ -26,22 +29,32 @@ export class UploadWork implements OnInit{
 		artName?: string,
 		bpm?: number,
 		key?: string,
+		dataDiCreazione?: Date
   	} = {};  
 	file?: File;
-	keys = ['A', 'A#', 'B','C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+	keys = ['A min', 'A# min', 'B min','C min', 'C# min', 'D min', 'D# min', 'E min', 'F min', 'F# min', 'G min', 'G# min', 
+		'A', 'A#', 'B','C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'
+	];
+
 	userId = this._authService.getUserId();
 	isAdmin = false;
 	currentArtName = '';
+	targetName = '';
+	users: UserModel[] = [];
+	artNames: string[] = [];
 
 	constructor(private http: HttpClient) {}
+
 	ngOnInit(): void {
 		const roles = this._authService.getUserRoles();
 		this.isAdmin = Array.isArray(roles) && roles?.includes('ROLE_ADMIN');
-		if (this.userId !== null) {
-			this._userService.getUserById(this.userId).subscribe(userModel => {
-				this.currentArtName = userModel?.artName ?? '';
-			});
-		}
+		const payload: { [key: string]: any } = JSON.parse(JSON.stringify('userId'));
+		
+		this.getAllArtNames();
+		this.isAdmin = payload?.['roles']?.includes('ROLE_ADMIN') || false;
+		// if (!this.isAdmin) {
+		// 	this.currentArtName = payload?.['artName'] || '';
+		// }
 	}
 
 	onDragOver(event: DragEvent) {
@@ -58,48 +71,53 @@ export class UploadWork implements OnInit{
 			this.file = event.dataTransfer.files[0];
 		}
 	}
-
-	ngOnIiti() {
-		const payload = this._authService.decodePayload();
-		this.isAdmin = payload?.['roles']?.includes('ROLE_ADMIN') || false;;
-
-		if (!this.isAdmin) {
-			this.currentArtName = payload?.['artName'] || '';
-		}
-	}
 	onFileSelected(ev: Event) {
 		const input = ev.target as HTMLInputElement;
 		this.file = input.files?.[0];
+
+	}
+
+	getAllArtNames() {
+		this._userService.getAllUsers().subscribe({
+			next: (users: UserModel[]) => {
+				if(!users || !Array.isArray(users)) {
+					this.artNames = [];
+					return;
+				}
+				this.users = users;
+				this.artNames = users
+				.map(u => u.artName)
+				.filter((name, idx, arr) => !!name && arr.indexOf(name) === idx);
+			},
+			error: err => console.error('Errore recupero utenti', err)
+		});
 	}
 
 	submitWork() {
-		if(!this.file || !this.work.title || !this.work.bpm || !this.work.key) return;
-		
-		const userRoles = this._authService.getUserRoles();
-		this.isAdmin = Array.isArray(userRoles) && userRoles.includes('ROLE_ADMIN');
+		if(!this.file || !this.work.title || !this.work.artName || !this.work.bpm || !this.work.key) return;
 
-		const targetArtName = this.isAdmin 
-			? this.work.artName?.trim() 
-			: this.currentArtName;
-		// const targetArtName = this.work.artName?.trim() ? this.currentArtName : this.currentArtName;
-		if (!targetArtName) {
-			console.error('Unvalid Art Name');
-			return;
-		}
-
-		const form = new FormData();
-		form.append('file', this.file);
-		form.append('title', this.work.title!);
-		form.append('artName', targetArtName);
-		form.append('bpm', this.work.bpm!.toString());
-		form.append('key', this.work.key!);
-		form.append('dataDiCreazione', new Date().toISOString().slice(0, 10));
+		this.isAdmin = this._authService.getUserRoles()?.includes('ROLE_ADMIN') || false;
 		
-		this._workService.uploadWork(form).subscribe({
-			next: w => this._router.navigate(['/listening-area', w.workId]),
-			error: err => console.error('Upload fallito:', err)
+		const formData = new FormData();
+		formData.append('file', this.file);
+		formData.append('title', this.work.title);
+		formData.append('bpm', this.work.bpm.toString());
+		formData.append('key', this.work.key);
+		formData.append(
+			'dataDiCreazione',
+			this.work.dataDiCreazione ? (this.work.dataDiCreazione).toISOString() : new Date().toISOString());
+		formData.append('artName', this.work.artName);
+
+		this._workService.uploadWork(formData).subscribe({
+			next: (createdWork) => {
+				console.warn('Work upload completato con successo');
+				this._router.navigate([`/listening-area/${createdWork.workId}`]);
+			},
+			error: (err) => {
+				console.error('Errore nel salvataggio del work: ', err);
+				alert('Errore nel salvataggio del work. Spiacenti, riprova più tardi');
+			}
 		});
-
 	}
 
 	goToUserPage() {

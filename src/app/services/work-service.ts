@@ -1,4 +1,4 @@
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { WorkModel } from "../models/work-model";
 import { map, Observable } from "rxjs";
@@ -39,12 +39,18 @@ export class WorkService {
         return this._http.post<void>(this._url, dto);
     }
 
+    createWork(dto: any): Observable<void> {
+        return this._http.post<void>(`${this._url}/new`, dto);
+    }
+
     updateWork(id: number, updates: Partial<WorkModel>): Observable<WorkModel> {
-        return this._http.put<WorkModel>(`http://localhost:8080/api/works/upload/${id}`, updates);
+        return this._http.put<WorkModel>(`${this._url}/upload/${id}`, updates);
     }
 
     uploadWork(form: FormData): Observable<WorkDto> {
-        return this._http.post<WorkDto>(`${this._url}/upload`, form, {withCredentials: true});
+        const token = localStorage.getItem('jwt_token');
+        const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}`}) : undefined;
+        return this._http.post<WorkDto>(`${this._url}/upload`, form, { headers });
     }
 
     updateWorkFull(id: number, dto: WorkDto): Observable<WorkDto> {
