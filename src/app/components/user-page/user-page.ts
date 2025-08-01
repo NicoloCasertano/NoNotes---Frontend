@@ -123,5 +123,9 @@ export class UserPage implements OnInit {
         }
       });
   }
+
+  logOut() {
+    this._routerPages.navigate(['/log-in-area']);
+  }
   
 }
