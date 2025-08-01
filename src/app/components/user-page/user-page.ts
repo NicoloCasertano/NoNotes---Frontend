@@ -30,6 +30,7 @@ export class UserPage implements OnInit {
   private _authService = inject(AuthService);
   private _userService = inject(UserService);
   works: WorkModel[] = [];
+  userHasAdminRole: boolean = false;
 
   ngOnInit() {
     console.log('--- ngOnInit UserPage ---');
@@ -47,7 +48,8 @@ export class UserPage implements OnInit {
       console.log('Token payload:', payload);
     }
     const payload = this._authService.decodePayload();
-    const userName = payload?.userName
+    this.userHasAdminRole = payload?.authorities?.includes('ROLE_ADMIN');
+    
     const artName = payload?.artName;
     console.log("artName: " + artName);
 
