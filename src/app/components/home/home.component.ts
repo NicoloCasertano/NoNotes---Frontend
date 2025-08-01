@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, NgModule } from '@angular/core';
+import { Component, inject, NgModule, OnDestroy, OnInit } from '@angular/core';
 import { BeatModel } from '../../models/beat-model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BeatService } from '../../services/beat-service';
@@ -19,7 +19,7 @@ import { WorkList } from "../home-lists/work-list/work-list";
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit, OnDestroy{
     [x: string]: any;
     beatsList!: BeatModel[];
     searchTerm!: string;
@@ -33,5 +33,69 @@ export class HomeComponent {
 
     goToUserPage() {
       this._router.navigate(['/user', this._authService.getUserId()]);
+    }
+
+    images: string[] = [
+      'https://imgur.com/fhg4ndx.jpg',
+      'https://imgur.com/gWv19UR.jpg',
+      'https://imgur.com/TZibG8P.jpg',
+      'https://imgur.com/O4lQBA8.jpg',
+      'https://imgur.com/aPlYx1j.jpg'
+    ];
+    currentImageIndex = 0;
+    private intervalId: any;
+    transitionStyle = 'transform 1.5s ease-in-out';
+
+    ngOnInit(): void {
+      this.startSlideShow();
+    }
+
+    ngOnDestroy(): void {
+      clearInterval(this.intervalId);
+    }
+
+    startSlideShow(): void {
+      this.intervalId = setInterval(() => {
+        this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
+      }, 5500);
+    }
+
+    getTransform(): string {
+      return `translateX(-${this.currentImageIndex * 100}%)`;
+    }
+    get imagesToShow(): string[] {
+      // Duplico la prima immagine alla fine
+      return [...this.images, this.images[0]];
+    }
+
+    prevImage(): void {
+      clearInterval(this.intervalId);
+      if (this.currentImageIndex === 0) {
+        this.transitionStyle = 'none';
+        this.currentImageIndex = this.images.length - 1;
+        setTimeout(() => {
+          this.transitionStyle = 'transform 0.8s ease-in-out';
+          this.currentImageIndex--;
+        });
+      } else {
+        this.currentImageIndex--;
+      }
+    }
+    
+    nextImage(): void {
+      if (this.currentImageIndex >= this.images.length) return; // evita superamento
+      this.currentImageIndex++;
+    }
+
+    handleTransitionEnd(): void {
+      // Se siamo sull'immagine duplicata (ultima), resetta senza transizione
+      if (this.currentImageIndex === this.images.length) {
+        this.transitionStyle = 'none';
+        this.currentImageIndex = 0;
+        // forza il cambio dopo il frame
+        setTimeout(() => {
+          this.transitionStyle = 'transform 0.8s ease-in-out';
+        });
+      }
     }
 }

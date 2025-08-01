@@ -24,6 +24,18 @@
     <br>You don't need to do miracles, You Need NoSaintz
    </p>
 </div>
+<div class="gallery-wrapper">
+  <div class="gallery-track" 
+    [style.transform]="getTransform()"
+    [style.transition]="transitionStyle"
+    (transitionend)="handleTransitionEnd()">
+    <img *ngFor="let img of images" [src]="img" class="slide-img"/>
+  </div>
+  <button class="arrow left" (click)="prevImage()">‹</button>
+  <button class="arrow right" (click)="nextImage()">›</button>
+</div>
+
+
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-col">

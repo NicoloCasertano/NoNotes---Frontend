@@ -1,3 +1,4 @@
+
 .gif-div {
     background-size: cover;
     background-repeat: no-repeat;
@@ -97,15 +98,15 @@ button:hover {
 
 h1 {
     color: #fff;
-    font-size: 4.2rem;
+    font-size: 2.2rem;
     font-family: 'Segoe UI', sans-serif;
-    font-weight: 400;
-    text-shadow: 0 0 7px rgba(255, 255, 255, 0.803), 0 0 30px rgba(151, 151, 151, 0.744);
+    font-weight: 200;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.803), 0 0 20px rgba(151, 151, 151, 0.744);
     border: none;
     position: absolute;
     width: 100%;
     background: none;
-    top: 0;
+    top: -1%;
     background-color: transparent;
     transition: all 0.3s ease;
     z-index: 101;
@@ -115,22 +116,79 @@ p {
     color: #fff;
     font-family: 'Segoe UI', sans-serif;
     width: 80%;
-    height: 30%;
+    height: 20%;
     position: relative;
-    font-size: 1.2rem;
+    font-size: 0.9rem;
     text-shadow: 0 0 3px #fff;
     opacity: 80%;
-    top: 17%;
+    top: 6%;
     text-align: center;
     transition: all 0.3s ease;
     border-radius: 10px;
     padding: 2% 2%;
 }
 p:hover {
-    transform: scale(1.05);
+    transform: scale(1.01);
     opacity: 100%;
     background-color: #000000e6;
 }
+
+
+
+.gallery-wrapper {
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+  position: relative;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  z-index: 300;
+}
+
+.gallery-track {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.slide-img {
+  flex-shrink: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  font-size: 3rem;
+  background-color: transparent;
+  border: none;
+  padding: 30px 5px;
+  cursor: pointer;
+  z-index: 300;
+  transition: filter 0.3s ease;
+}
+.arrow:hover {
+  box-shadow: none;
+  filter: brightness(1.3);
+  background-color: transparent;
+}
+
+.arrow.left {
+  left: 10px;
+  color: #0ff;
+  z-index: 300;
+}
+
+.arrow.right {
+  right: 10px;
+  color: #0ff;
+  z-index: 300;
+}
+
+
+
 .site-footer {
   width: 100%;
   background-color: #000;
