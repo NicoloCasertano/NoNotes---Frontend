@@ -459,6 +459,28 @@ body {
   transform: scale(1.1);
   color: #0ff;
 }
+/* .footer-col a.home-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background-color: #222;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: background-color 0.3s, color 0.3s;
+  margin-left: 1rem;
+  width: 40%;
+}
+
+.footer-col a.home-button:hover {
+  background-color: #0ff;
+  color: #000;
+}
+
+.footer-col a.home-button span {
+  font-size: 0.9rem;
+  font-weight: 500;
+} */
 
 /* Lista icone social */
 .social-icons {
@@ -487,3 +509,48 @@ body {
 .social-icons li a[href*="spotify"]:hover { background-color: #1DB954; }
 .social-icons li a[href*="instagram"]:hover { background: radial-gradient(circle at 30% 107%,#fdf497 0%,#fd5949 45%,#d6249f 60%,#285AEB 90%); }
 .social-icons li a[href*="facebook"]:hover { background-color: #1877F2; }
+
+
+
+
+.contact-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.contact-actions a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-decoration: none;
+}
+
+.contact-actions a i {
+  font-size: 1.5rem;
+  transition: transform 0.3s, color 0.3s;
+}
+
+.contact-actions a:hover i {
+  transform: scale(1.1);
+  color: #0ff;
+}
+
+.contact-actions .home-button {
+  background-color: #222;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: background-color 0.3s, color 0.3s;
+  gap: 0.5rem;
+  width: 50%;
+  display: flex;
+  align-items: center;
+}
+
+.contact-actions .home-button:hover {
+  background-color: #0ff;
+  color: #000;
+}

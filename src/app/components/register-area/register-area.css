@@ -29,7 +29,8 @@ h2 {
 }
 .name,
 .email,
-.password {
+
+.artname {
     margin-top: 7%;
     background-color: #222;
     display: block;
@@ -80,4 +81,48 @@ h2 {
     transform: scale(1.05);
     background-color: #0a0a0a;
     text-shadow: 0 0 40px rgba(0, 255, 255, 0.7), 0 0 40px rgba(0, 255, 255, 0.5);
+}
+
+.password-container {
+  position: relative;
+  width: 100%;
+  margin-top: 7%;
+  display: flex;
+  justify-content: center;
+}
+
+.password-input {
+  width: 100%;
+  padding-right: 40px; /* spazio per l'icona */
+  box-sizing: border-box;
+}
+.password {
+    width: 100%;
+    padding-right: 45px; /* Spazio per l’icona */
+    height: 22px;
+    background-color: #222;
+    border: none;
+    font-size: medium;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    color: #fff;
+    text-align: center;
+    box-sizing: border-box;
+}
+.toggle-button {
+  position: relative;
+  top: 0;
+  right: 0;
+  width: 45px;
+  height: 22px;
+  border: none;
+  background-color: #222;
+  background-size: cover;
+  color: #525252;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }

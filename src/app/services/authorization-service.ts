@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from "@angular/common/http";
+import { HttpClient, HttpHeaderResponse, HttpHeaders, HttpParams } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { RouteConfigLoadEnd, Router } from "@angular/router";
 import { jwtDecode } from 'jwt-decode';
@@ -10,6 +10,19 @@ import { JwtPayloadModel } from "../models/jwt-payload-model";
 import { environment } from "../../environment";
 import { AuthorityModel } from "../models/authority-model";
 
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+  artName: string;
+}
+
+export interface AuthenticationResponse {
+  token: string;
+  userName: string;
+  roles: string[];
+}
+
 @Injectable({providedIn: 'root'})
 export class AuthService {
 
@@ -20,13 +33,20 @@ export class AuthService {
 
     constructor(_http: HttpClient){}
 
-    register(data: { name: string, email: string; password: string}): Observable<JwtTokenModel>{
-        return this._http.post<JwtTokenModel>(`${this._url}/register-area`, data);
+    register(data: RegisterRequest): Observable<AuthenticationResponse> {
+        return this._http.post<AuthenticationResponse>(`${this._url}/register-area`, data,
+            {
+                headers: new HttpHeaders({
+                    'Content-Type': 'application/json'
+                })
+            }
+        );
     }
 
     login(credentials: { email:string; password: string}) {
         return this._http.post<JwtTokenModel & {authorities: string[]}>(`${this._url}/log-in-area`, credentials)
             .pipe(tap(resp => {
+                console.log("Token ricevuto:", resp.token);
                 this.setToken(resp.token);
                 localStorage.setItem('user_roles', JSON.stringify(resp.authorities));
             }));
@@ -72,12 +92,12 @@ export class AuthService {
         const token = this.getToken();
         if (!token) return null;
         try {
-        const payloadPart = token.split('.')[1];
-        const decoded = atob(payloadPart);
-        return JSON.parse(decoded) as JwtPayloadModel;
+            const payloadPart = token.split('.')[1];
+            const decoded = atob(payloadPart);
+            return JSON.parse(decoded) as JwtPayloadModel;
         } catch (e) {
-        console.error('Errore decodifica token', e);
-        return null;
+            console.error('Errore decodifica token', e);
+            return null;
         }
     }
     private saveRoles(authorities: string[]) {

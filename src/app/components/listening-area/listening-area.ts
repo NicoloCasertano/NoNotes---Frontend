@@ -115,7 +115,10 @@ import { __rewriteRelativeImportExtension } from 'tslib';
 				<div class="footer-inner">
 					<div class="footer-col">
 						<h4>Contact Us</h4>
-						<a href="mailto:info.nosaintz@gmail.com" target="_blank"><i class="fas fa-envelope"></i></a>
+						<div class="contact-actions">
+							<a href="mailto:info.nosaintz@gmail.com" target="_blank"><i class="fas fa-envelope"></i></a>
+							<a href="/" class="home-button"><i class="fas fa-home"></i><span></span></a>
+						</div>
 					</div>
 					<div class="footer-col">
 						<h4>Follow Us</h4>

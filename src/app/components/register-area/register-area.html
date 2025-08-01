@@ -1,14 +1,23 @@
+<link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <div class="register-area-div">
-    <Form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="form-r">
+    <Form [formGroup]="registerForm" class="form-r">
         <div class="info-r-area">
             <h2 class="register">REGISTER HERE</h2>
         </div>
-        <input type="text" id="nome" placeholder="Inserire nuova User Name" minlength="3" maxlength="30" formControlName="name" class="name">
-        <input type="email" id="email" placeholder="Inserire nuova Email" formControlName="email" class="email">
-        <input type="password" id="password" placeholder="Inserire nuova Password" minlength="5" maxlength="30" formControlName="password" class="password">
+        <input placeholder="Inserire nuova User Name" minlength="3" maxlength="30" formControlName="name" class="name">
+        <div class="password-container">
+            <input [type]="showPassword ? 'text' : 'password'" placeholder="Inserire nuova Password" minlength="5" maxlength="30" formControlName="password" class="password">
+            <button type="button" (click)="togglePasswordVisibility()" class="toggle-button">
+                <span *ngIf="showPassword" class="fa fa-eye-slash"></span>
+                <span *ngIf="!showPassword" class="fa fa-eye"></span>
+            </button>
+        </div>
+        <input placeholder="Inserire nuova Email" formControlName="email" class="email">
+        <input formControlName="artName" placeholder="Inserire nome d'Arte" class="artname">
         <div class="finalize-registration">
-            <button class="register-button">Register</button><br><br>
+            <button class="register-button" type="submit" (click)="onSubmit()">Register</button><br><br>
             <a routerLink="/authentications/log-in-area" (click)="goToLogIn()" class="router-link">Hai già un account? Esegui il Login</a>
         </div>
     

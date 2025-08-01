@@ -42,7 +42,10 @@ export class UserPage implements OnInit {
       setTimeout(() => this.ngOnInit(), 100);
       return;
     }
-
+    if (token) {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      console.log('Token payload:', payload);
+    }
     const payload = this._authService.decodePayload();
     const userName = payload?.userName
     const artName = payload?.artName;
