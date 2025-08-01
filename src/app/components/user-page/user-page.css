@@ -14,6 +14,7 @@
 .log-out {
   margin-top: 1.5%;
   margin-left: 70%;
+  position: relative;
 }
 .log-out-div {
   display: flex;

@@ -25,7 +25,7 @@
     <p>Caricamento in corso…</p>
     </ng-template>
 
-    <div class="upload-div">
+    <div class="upload-div" *ngIf="userHasAdminRole">
         <a (click)="goToUploadWork()" class="upload-work">UPLOAD <br><br> NEW WORK</a>
     </div>
 

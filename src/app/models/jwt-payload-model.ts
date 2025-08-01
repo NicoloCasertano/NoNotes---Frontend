@@ -2,9 +2,10 @@ export interface JwtPayloadModel {
     userId: number,
     sub: string,
     userName: string;
-    password: null;
+
     email: string;
     artName: string;
+    authorities: string[];
     works: string[];
     iat: number, //data di creazione
     exp: number,
