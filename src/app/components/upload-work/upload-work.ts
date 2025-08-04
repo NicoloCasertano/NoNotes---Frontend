@@ -9,6 +9,7 @@ import { UserService } from '../../services/user-service';
 import { jwtDecode } from 'jwt-decode';
 import { UserModel } from '../../models/user-model';
 import { ListeningArea } from '../listening-area/listening-area';
+import { WorkDto } from '../../models/dto/work-dto';
 
 @Component({
 	standalone: true,
@@ -107,7 +108,7 @@ export class UploadWork implements OnInit{
 			'dataDiCreazione',
 			this.work.dataDiCreazione ? (this.work.dataDiCreazione).toISOString() : new Date().toISOString());
 		formData.append('artName', this.work.artName);
-
+		this._workService.createWork(this.work);
 		this._workService.uploadWork(formData).subscribe({
 			next: (createdWork) => {
 				console.warn('Work upload completato con successo');

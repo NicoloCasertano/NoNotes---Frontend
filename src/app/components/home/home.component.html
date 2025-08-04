@@ -13,6 +13,20 @@
 <div class="vai-al-profilo">
     <button (click)="goToUserPage()">Torna al tuo Profilo</button>
 </div><br>
+<div class="gallery-wrapper">
+  <div class="gallery-track" 
+    [style.transform]="getTransform()"
+    [style.transition]="transitionStyle"
+    (transitionend)="handleTransitionEnd()">
+    <img *ngFor="let img of visibleImages" [src]="img" class="slide-img"/>
+  </div>
+  <button class="arrow left" (click)="prevImage()">‹</button>
+  <button class="arrow right" (click)="nextImage()">›</button>
+</div>
+
+<div class="blur-line-div">
+  <div class="blur-line"></div>
+</div>
 
 <div class="photo-selection">
    <h1>ABOUT US</h1>
@@ -24,16 +38,7 @@
     <br>You don't need to do miracles, You Need NoSaintz
    </p>
 </div>
-<div class="gallery-wrapper">
-  <div class="gallery-track" 
-    [style.transform]="getTransform()"
-    [style.transition]="transitionStyle"
-    (transitionend)="handleTransitionEnd()">
-    <img *ngFor="let img of images" [src]="img" class="slide-img"/>
-  </div>
-  <button class="arrow left" (click)="prevImage()">‹</button>
-  <button class="arrow right" (click)="nextImage()">›</button>
-</div>
+
 
 
 <footer class="site-footer">
@@ -41,7 +46,7 @@
     <div class="footer-col">
       <h4>Contact Us</h4>
       <a href="mailto:info.nosaintz@gmail.com" target="_blank">
-        <i class="fas fa-envelope"></i>
+        <i class="fas fa-envelope" style="margin-top: 8%;"></i>
       </a>
     </div>
     <div class="footer-col">

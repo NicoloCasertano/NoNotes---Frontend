@@ -42,7 +42,7 @@ export class HomeComponent implements OnInit, OnDestroy{
       'https://imgur.com/O4lQBA8.jpg',
       'https://imgur.com/aPlYx1j.jpg'
     ];
-    currentImageIndex = 0;
+    currentImageIndex = 1;
     private intervalId: any;
     transitionStyle = 'transform 1.5s ease-in-out';
 
@@ -67,35 +67,34 @@ export class HomeComponent implements OnInit, OnDestroy{
       // Duplico la prima immagine alla fine
       return [...this.images, this.images[0]];
     }
+    get visibleImages() {
+      if (this.images.length === 0) return [];
+      return [this.images[this.images.length - 1], ...this.images, this.images[0]];
+    }
 
     prevImage(): void {
-      clearInterval(this.intervalId);
-      if (this.currentImageIndex === 0) {
-        this.transitionStyle = 'none';
-        this.currentImageIndex = this.images.length - 1;
-        setTimeout(() => {
-          this.transitionStyle = 'transform 0.8s ease-in-out';
-          this.currentImageIndex--;
-        });
-      } else {
-        this.currentImageIndex--;
-      }
+      this.currentImageIndex--;
+      this.transitionStyle = 'transform 0.5s ease-in-out';
     }
     
     nextImage(): void {
-      if (this.currentImageIndex >= this.images.length) return; // evita superamento
       this.currentImageIndex++;
+      this.transitionStyle = 'transform 0.8s ease-in-out';
     }
 
     handleTransitionEnd(): void {
       // Se siamo sull'immagine duplicata (ultima), resetta senza transizione
-      if (this.currentImageIndex === this.images.length) {
+      if (this.currentImageIndex === this.images.length + 1) {
         this.transitionStyle = 'none';
-        this.currentImageIndex = 0;
-        // forza il cambio dopo il frame
+        this.currentImageIndex = 1;
+        // // forza il cambio dopo il frame
         setTimeout(() => {
           this.transitionStyle = 'transform 0.8s ease-in-out';
         });
+      }
+      if(this.currentImageIndex === 0) {
+        this.transitionStyle = 'none';
+        this.currentImageIndex = this.images.length;
       }
     }
 }
