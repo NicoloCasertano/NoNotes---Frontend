@@ -1,15 +1,11 @@
-import { HttpParams } from '@angular/common/http';
-import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
+import { Component, inject, OnInit} from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { WorkService } from '../../services/work-service';
 import { AuthService } from '../../services/authorization-service';
-import { ListeningArea } from "../listening-area/listening-area";
 import { WorkModel } from '../../models/work-model';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UploadWork } from '../upload-work/upload-work';
-import { UserService } from '../../services/user-service';
 import { UserModel } from '../../models/user-model';
 import { WorkList } from "../home-lists/work-list/work-list";
 import { AdminService } from '../../services/admin-service';
@@ -28,9 +24,16 @@ export class UserPage implements OnInit {
   private _routerPages = inject(Router);
   private _workService = inject(WorkService); 
   private _authService = inject(AuthService);
-  private _userService = inject(UserService);
+  
+  image: any;
   works: WorkModel[] = [];
   userHasAdminRole?: boolean = false;
+  uploadedWorks = this.works;
+  currentWork?: WorkModel | null = null;
+  userId!: number;
+  userModel?: UserModel;
+  artName?: string = this._authService.decodePayload()?.artName;
+
 
   ngOnInit() {
     console.log('--- ngOnInit UserPage ---');
@@ -70,17 +73,15 @@ export class UserPage implements OnInit {
         },
         error: err => console.error(err)
       });
-
-        
+      
+      const savedImage = localStorage.getItem('profileImage');
+      if(savedImage) {
+        this.image = { src: savedImage, alt: 'Profile image' };
+      }
     });
   }
 
-  uploadedWorks = this.works;
-  currentWork?: WorkModel | null = null;
-  
-  userId!: number;
-  userModel?: UserModel;
-  artName?: string = this._authService.decodePayload()?.artName;
+
 
   onSelect(work: WorkModel): void {
     this.currentWork = work;
@@ -129,5 +130,76 @@ export class UserPage implements OnInit {
   logOut() {
     this._routerPages.navigate(['/log-in-area']);
   }
-  
+
+  onDragOver(event : DragEvent): void {
+    event.preventDefault();
+  }
+
+  onDrop(event: DragEvent):void {
+    event.preventDefault();
+
+    const file = event.dataTransfer?.files[0];
+
+    if(file?.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.resizeImage(file).then(resizeImage => {
+          localStorage.setItem('profileImage', resizeImage);
+          this.image = { src: resizeImage, alt: file.name };
+        })
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  onDragStart(event: DragEvent):void {
+    this.image = {
+      src: (event.target as HTMLImageElement).src,
+      alt: (event.target as HTMLImageElement).alt,
+    };
+
+    if(event.dataTransfer) {
+      event.dataTransfer.setData('text/plain', JSON.stringify(this.image));
+    }
+  }
+
+  resizeImage(file: File, maxWidth = 200, maxHeight = 200): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = e => {
+        img.src = e.target?.result as string;
+      };
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        resolve(canvas.toDataURL('image/jpeg', 0.7));
+      };
+
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+    
 }

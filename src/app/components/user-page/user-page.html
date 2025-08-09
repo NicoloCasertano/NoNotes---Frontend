@@ -11,17 +11,20 @@
         <div class="user-title-page">
             <h1 (event)="ngOnInit()">{{ this.artName }}</h1>
         </div>
+        <div class="image-container">
+            <div class="user-image-container"
+                (dragover)="onDrop($event)"
+                (drop)="onDrop($event)">
+                <img *ngIf="image?.src"
+                    draggable="true"
+                    [src]="image?.src"
+                    [alt]="image?.alt">
+            </div>
+        </div>
     </div>
 
     <app-work-list [works]="works" class="works-cards"></app-work-list>
-    <ng-template #noWorks>
-        <p>Non ci sono lavori per questo utente.</p>
-    </ng-template>
 
-
-    <ng-template #loading>
-    <p>Caricamento in corso…</p>
-    </ng-template>
 
     <div class="upload-div" *ngIf="userHasAdminRole">
         <a (click)="goToUploadWork()" class="upload-work">UPLOAD <br><br> NEW WORK</a>

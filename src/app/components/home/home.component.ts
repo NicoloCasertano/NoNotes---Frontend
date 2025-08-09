@@ -10,6 +10,8 @@ import { AuthService } from '../../services/authorization-service';
 import { SearchModel } from '../../models/search-model';
 import { WorkModel } from '../../models/work-model';
 import { WorkList } from "../home-lists/work-list/work-list";
+import { UserModel } from '../../models/user-model';
+import { jwtDecode } from 'jwt-decode';
 
 
 @Component({
@@ -26,10 +28,11 @@ export class HomeComponent implements OnInit, OnDestroy{
     workList!: WorkModel[];
     userList!: UserNoPassModel[];
     isAdvClosed = false;
-
+   
     private _authService: AuthService = inject(AuthService);
     private _router = inject(Router);
 
+    artName = this._authService.decodePayload()?.artName;
 
     goToUserPage() {
       this._router.navigate(['/user', this._authService.getUserId()]);

@@ -28,6 +28,7 @@ import { Component, ElementRef, Input, ViewChild, AfterViewInit } from "@angular
             <p>BPM:<br>{{ work.bpm }}<br><br>Key:<br>{{ work.key }}</p>
           </a>
         </div>
+        <h3 *ngIf="works.length === 0" class="no-works"> "Non ci sono lavori attualmente, contatta i NoSaintz per crearne uno"</h3>
       </div>
       <div class="scroll-button-div"></div>
       <button class="scroll-button right" (click)="scrollRight()">›</button>

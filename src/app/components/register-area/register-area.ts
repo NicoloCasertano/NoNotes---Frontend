@@ -40,14 +40,9 @@ export class RegisterAreaComponent {
             artName
         }).subscribe({
             next: (res) => {
-                console.log('Registrazione avvenuta con successo:', res);
-                const payload = this._authService.decodePayload();
-                const userId = this._authService.decodePayload()?.userId;
-                if(userId) {
-                    this._router.navigate(['/home']);
-                } else {
-                    console.warn('Token ricevuto ma userId non presente nel payload');
-                }
+                console.log('Registrazione avvenuta con successo:', res);  
+                this._router.navigate(['/log-in-area']);
+                console.warn('Token ricevuto ma userId non presente nel payload');
             },
             error: (err) => {
                 console.error('Errore durante la registrazione:', err);

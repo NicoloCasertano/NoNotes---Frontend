@@ -50,11 +50,7 @@ h3 {
     z-index: 30;
     top: 55%;
     left: auto;
-    transition: all 0.3s ease;
     text-align: center;
-}
-h3:hover{
-    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.331)) brightness(1.5);
 }
 .vai-al-profilo {
     bottom: 3px;
@@ -63,7 +59,7 @@ h3:hover{
     align-items: center;
 }
 button {
-  background-color: #222;
+  background-color: #0e0e0e;
   color: #fff;
   border: none;
   padding: 0.6rem 1rem;

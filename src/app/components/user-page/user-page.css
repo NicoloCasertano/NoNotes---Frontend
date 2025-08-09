@@ -28,7 +28,8 @@
     margin-top: 2%;
     text-align: center; 
     position: relative; 
-    height: 5%;  
+    height: 5%;
+    margin-bottom: 3%;  
 }
 .home:hover,
 .log-out:hover {
@@ -95,6 +96,30 @@ body {
   font-family: 'Segoe UI', sans-serif;
   text-shadow: 0 0 3px rgb(146, 255, 255), 0 0 10px rgba(0, 255, 255, 0.4);
 }
+.image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.user-image-container {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  position: fixed;
+}
+.user-image-container img {
+  width: 100%;
+  height: 100%;
+}
+
+h3 {
+  color: white;
+  font-size: large;
+  font-weight: 100;
+  text-align: center;
+  z-index: 400;
+}
+
 .logo {
     content: "";
     position: fixed;
@@ -168,6 +193,7 @@ a.upload-work:hover {
   position: relative;
   z-index: 200;
   padding: 2rem 0;
+  height: 100%;
 }
 .footer-inner {
   max-width: 1200px;
