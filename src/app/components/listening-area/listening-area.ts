@@ -6,9 +6,10 @@ import {
   OnChanges,
   SimpleChanges,
   ViewChild,
-  AfterViewInit
+  AfterViewInit,
+  inject
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import WaveSurfer from 'wavesurfer.js';
 import EnvelopePlugin from 'wavesurfer.js/dist/plugins/envelope.js';
@@ -22,6 +23,7 @@ import { AudioService } from '../../services/audio-service';
 import { FormsModule } from '@angular/forms';
 import { WorkDto } from '../../models/dto/work-dto';
 import { __rewriteRelativeImportExtension } from 'tslib';
+import { AuthService } from '../../services/authorization-service';
 
 @Component({
 	standalone: true,
@@ -36,6 +38,9 @@ import { __rewriteRelativeImportExtension } from 'tslib';
 					YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ 
 					YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ YOU NEED NO SAINTZ
 				</h1>
+			</div><br>
+			<div class="button-container">
+				<button class="go-to-user-page" (click)="goToUserPage()">Torna alla User Page</button>
 			</div>
 			<div class="img-prewave">
 				<h1 class="work-title">{{work?.title?.toUpperCase()}}</h1>
@@ -154,10 +159,10 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		private route: ActivatedRoute,
 		private workService: WorkService,
 		private audioService: AudioService,
-		
+		private _authService: AuthService
 	) {}
 
-	private isMobile = top!.matchMedia('(max-width: 900px)').matches;
+	private _router = inject(Router);
 	private nextRegionHue = 180;
 	private zoomListenerSet = false;
 	private prevVolume = 1;
@@ -719,6 +724,11 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 			container.removeEventListener('wheel', this.onWheelZoomControl);
 		}
 		this.wavesurfer?.destroy();
+	}
+
+	goToUserPage(): void {
+		const userId = this._authService.getUserId();
+		this._router.navigate(['/user', userId!]);
 	}
 
   

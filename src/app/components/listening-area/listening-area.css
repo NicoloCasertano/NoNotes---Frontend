@@ -38,6 +38,16 @@
     }
 }
 
+.button-container {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+.go-to-user-page {
+  right: 5%;
+  position: fixed;
+}
+
 .img-prewave {
   position: relative;
   width: 100%;
@@ -50,9 +60,7 @@
 }
 .img-prewave::before {
   content: "";
-  background-image: url(https://imgur.com/nMicj0C.jpg);
   background-repeat: no-repeat;
-  background-size: cover;
   position: absolute;
   top: 0; left: 0;
   width: 100%;
