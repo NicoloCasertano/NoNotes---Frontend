@@ -9,20 +9,21 @@
     </div>
     <div class="works-div">
         <div class="user-title-page">
-            <h1 (event)="ngOnInit()">{{ this.artName }}</h1>
-        </div>
-        <div class="image-container">
-            <div class="user-image-container"
-                (dragover)="onDrop($event)"
-                (drop)="onDrop($event)">
-                <img *ngIf="image?.src"
-                    draggable="true"
-                    [src]="image?.src"
-                    [alt]="image?.alt">
+            <h1 (event)="ngOnInit()">{{ this.artName }}</h1><br>
+
+            <div class="image-container">
+                <div class="user-image-container"
+                    (dragover)="onDrop($event)"
+                    (drop)="onDrop($event)">
+
+                    <img *ngIf="image?.src || 'https://github.com/NicoloCasertano/NoNotes---Frontend/blob/main/assets/userimage.jpg'"
+                        draggable="true"
+                        [src]="image?.src"
+                        [alt]="image?.alt">
+                </div>
             </div>
         </div>
-    </div>
-
+    </div><br>
     <app-work-list [works]="works" class="works-cards"></app-work-list>
 
 
