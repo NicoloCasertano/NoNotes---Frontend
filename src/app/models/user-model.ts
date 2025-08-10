@@ -8,4 +8,5 @@ export interface UserModel {
     artName: string;
     works: WorkModel[];
     authorities: string[];
+    profileImg: string;
 }

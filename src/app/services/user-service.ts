@@ -57,4 +57,8 @@ export class UserService {
             })
         );
     }
+
+    updateUserProfileImage(id: number, profileImg: string) {
+        return this._http.put(this._url + `/${id}/profile-image`, { profileImg });
+    }
 }

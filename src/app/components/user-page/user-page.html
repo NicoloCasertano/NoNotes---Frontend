@@ -12,16 +12,20 @@
             <h1 (event)="ngOnInit()">{{ this.artName }}</h1><br>
 
             <div class="image-container">
-                <div class="user-image-container"
-                    (dragover)="onDrop($event)"
+                <div (dblclick)="deleteProfileImage()" class="user-image-container"
+                    (dragover)="onDragOver($event)"
                     (drop)="onDrop($event)">
 
-                    <img *ngIf="image?.src || 'https://github.com/NicoloCasertano/NoNotes---Frontend/blob/main/assets/userimage.jpg'"
+                    <img *ngIf="image?.src; else defaultImg"
                         draggable="true"
+                        (dragstart)="onDragStart($event)"
                         [src]="image?.src"
                         [alt]="image?.alt">
                 </div>
             </div>
+            <ng-template #defaultImg>
+                <img src="https://github.com/NicoloCasertano/NoNotes---Frontend/blob/main/assets/userimage.jpg?raw=true" alt="Defalut Image">
+            </ng-template>
         </div>
     </div><br>
     <app-work-list [works]="works" class="works-cards"></app-work-list>
