@@ -212,7 +212,7 @@ export class UserPage implements OnInit {
     }
 
     if (typeof this.userId === 'number' && !isNaN(this.userId) && this.userId !== 0) {
-      this._userService.updateUserProfileImage(this.userId, imageBase64).subscribe({
+      this._userService.updateUserProfileImage(this.userId, imageBase64!).subscribe({
         next: () => {
           console.log('bella immagine, caricata con successo');
         },
@@ -226,11 +226,17 @@ export class UserPage implements OnInit {
   }
 
   deleteProfileImage() {
+
+    const defaultImg = "https://github.com/NicoloCasertano/NoNotes---Frontend/blob/main/assets/user%20Icon%20grigia.png?raw=true";
+
     localStorage.removeItem('profileImage');
-    this.image = null;
+    this.image = { src: defaultImg, alt: 'Default Image'};
+
     if (this.userModel) {
       this.userModel.profileImg = '';
     }
+
+    this.saveProfileImage(defaultImg);
   }
 
 }
