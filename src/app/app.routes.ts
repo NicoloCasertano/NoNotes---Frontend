@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
 import { RoleGuard } from './components/role-guard/role-guard';
 
-export const routes: Routes = [{ path: '', redirectTo: 'log-in-area', pathMatch: 'full'},
+export const routes: Routes = [{ path: '', redirectTo: 'open-page', pathMatch: 'full'},
+    { path: 'open-page', loadComponent: () => import('./components/open-page/open-page').then(m => m.OpenPage)},
     { path: 'log-in-area', loadComponent: () => import('./components/log-in-area/log-in-area').then(m => m.LogInArea)},
     { path: 'home', loadComponent: () => import('./components/home/home.component').then(m => m.HomeComponent) },
     { path: 'user/:id', loadComponent: () => import('./components/user-page/user-page').then(m => m.UserPage) },
