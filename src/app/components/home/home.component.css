@@ -102,7 +102,7 @@ h1 {
     position: absolute;
     width: 100%;
     background: none;
-    top: -1%;
+    top: 1%;
     background-color: transparent;
     transition: all 0.3s ease;
     z-index: 101;
@@ -111,75 +111,67 @@ h1 {
 p {
     color: #fff;
     font-family: 'Segoe UI', sans-serif;
-    width: 80%;
-    height: 20%;
+    width: 60%;
+    height: 30%;
     position: relative;
     font-size: 0.9rem;
     text-shadow: 0 0 3px #fff;
-    opacity: 80%;
-    top: 10%;
+    opacity: 10%;
+    top: 15%;
     text-align: center;
     transition: all 0.5s ease;
     border-radius: 10px;
-    padding: 2% 2%;
+    padding: 4% 2%;
 }
 p:hover {
     transform: scale(1.09);
     opacity: 100%;
     background-color: #000000e6;
 }
+.line {
+  display: inline-block;
+}
+.line span { 
+  display: inline-block;
+  opacity: 0;
+  transform: translateX(10px);
+  animation-name: none;
+  animation-fill-mode: forwards;
+  animation-duration: 3.5s;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-out;
+}
+p:hover .line span {
+  animation-name: fadeSlideIn;
+}
+p:hover .line span:nth-child(n) {
+  animation-delay: calc(var(--line-index, 0) * 0.5s + (var(--letter-index, 0) * 0.05s));
+}
 
 
-.gallery-wrapper {
+@keyframes fadeSlideIn {
+  to {
+    opacity: 0.8;
+    transform: translateX(0);
+  }
+}
+
+/* CSS */
+.gallery-container {
   width: 100%;
-  height: 400px;
   overflow: hidden;
-  position: relative;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  white-space: nowrap;
   z-index: 300;
+  position: relative;
 }
 
 .gallery-track {
   display: flex;
-  align-items: center;
-  height: 100%;
 }
 
 .slide-img {
+  width: 70%; /* larghezza immagine fissa */
   flex-shrink: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.arrow {
-  position: absolute;
-  top: 50%;
-  font-size: 3rem;
-  background-color: transparent;
-  border: none;
-  padding: 30px 5px;
-  cursor: pointer;
-  z-index: 300;
-  transition: filter 0.3s ease;
-}
-.arrow:hover {
-  box-shadow: none;
-  filter: brightness(1.3);
-  background-color: transparent;
-}
-
-.arrow.left {
-  left: 10px;
-  color: #0ff;
-  z-index: 300;
-}
-
-.arrow.right {
-  right: 10px;
-  color: #0ff;
-  z-index: 300;
 }
 
 .blur-line {
@@ -216,6 +208,7 @@ p:hover {
   gap: 4rem;
   justify-content: center;
   align-items: flex-start;
+  height: 10%;
 }
 .footer-col h4 {
   color: #fff;

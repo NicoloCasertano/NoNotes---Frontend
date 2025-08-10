@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, NgModule, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, NgModule, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { BeatModel } from '../../models/beat-model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BeatService } from '../../services/beat-service';
@@ -21,7 +21,10 @@ import { jwtDecode } from 'jwt-decode';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit, OnDestroy{
+export class HomeComponent implements OnInit, OnDestroy, AfterViewInit {
+
+    @ViewChild('animatedText') animatedText!: ElementRef<HTMLParagraphElement>;
+
     [x: string]: any;
     beatsList!: BeatModel[];
     searchTerm!: string;
@@ -45,59 +48,53 @@ export class HomeComponent implements OnInit, OnDestroy{
       'https://imgur.com/O4lQBA8.jpg',
       'https://imgur.com/aPlYx1j.jpg'
     ];
-    currentImageIndex = 1;
-    private intervalId: any;
-    transitionStyle = 'transform 1.5s ease-in-out';
+    loopedImages: string[] = [];
+    offsetX = 0;
+    speed = 0.3;
+    animationFrameId: number | null = null;
+    
 
     ngOnInit(): void {
-      this.startSlideShow();
+      this.loopedImages = [...this.images, ...this.images];
+      this.startAnimation();
+    }
+    
+    ngAfterViewInit(): void {
+      const lines = this.animatedText.nativeElement.querySelectorAll('.line');
+
+      lines.forEach((line, lineIndex) => {
+        const text = line.textContent?.trim() || '';
+        line.textContent = '';
+
+        for (let i = 0; i < text.length; i++) {
+          const span = document.createElement('span');
+          span.textContent = text[i];
+          span.style.opacity = '0';
+          span.style.display = 'inline-block';
+          span.style.transform = 'translateX(10px)';
+          // NON impostare l'animazione qui, si attiva solo al hover
+          span.style.setProperty('--line-index', lineIndex.toString());
+          span.style.setProperty('--letter-index', i.toString());
+          line.appendChild(span);
+        }
+      });
     }
 
     ngOnDestroy(): void {
-      clearInterval(this.intervalId);
+      if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
     }
 
-    startSlideShow(): void {
-      this.intervalId = setInterval(() => {
-        this.currentImageIndex = (this.currentImageIndex + 1) % this.images.length;
-      }, 5500);
-    }
+    startAnimation() {
+      const totalWidth = this.images.length * 392.44;
+      const step = () => {
+        this.offsetX -= this.speed;
+        
+        if(Math.abs(this.offsetX) >= totalWidth) {
+          this.offsetX += totalWidth;
+        }
 
-    getTransform(): string {
-      return `translateX(-${this.currentImageIndex * 100}%)`;
-    }
-    get imagesToShow(): string[] {
-      // Duplico la prima immagine alla fine
-      return [...this.images, this.images[0]];
-    }
-    get visibleImages() {
-      if (this.images.length === 0) return [];
-      return [this.images[this.images.length - 1], ...this.images, this.images[0]];
-    }
-
-    prevImage(): void {
-      this.currentImageIndex--;
-      this.transitionStyle = 'transform 0.5s ease-in-out';
-    }
-    
-    nextImage(): void {
-      this.currentImageIndex++;
-      this.transitionStyle = 'transform 0.8s ease-in-out';
-    }
-
-    handleTransitionEnd(): void {
-      // Se siamo sull'immagine duplicata (ultima), resetta senza transizione
-      if (this.currentImageIndex === this.images.length + 1) {
-        this.transitionStyle = 'none';
-        this.currentImageIndex = 1;
-        // // forza il cambio dopo il frame
-        setTimeout(() => {
-          this.transitionStyle = 'transform 0.8s ease-in-out';
-        });
-      }
-      if(this.currentImageIndex === 0) {
-        this.transitionStyle = 'none';
-        this.currentImageIndex = this.images.length;
-      }
+        this.animationFrameId = requestAnimationFrame(step);
+      };
+      step();
     }
 }

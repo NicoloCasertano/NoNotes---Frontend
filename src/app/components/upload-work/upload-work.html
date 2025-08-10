@@ -2,15 +2,15 @@
     <button (click)="goToHome()" class="logo"></button>
     <h1>CARICA UN NUOVO LAVORO</h1>
     <div
-    class="drop-zone"
-    (dragenter)="onDragOver($event)"
-    (dragover)="onDragOver($event)"
-    (dragleave)="onDragLeave($event)"
-    (drop)="onDrop($event)">
+        class="drop-zone"
+        (dragenter)="onDragOver($event)"
+        (dragover)="onDragOver($event)"
+        (dragleave)="onDragLeave($event)"
+        (drop)="onDrop($event)">
        
         <p *ngIf="!file">Trascina il file Audio qui</p>
         <p *ngIf="file"> {{ file.name }}</p>
-        <button (click)="goToUserPage()" class="vai-user-page">Torna al tuo Profilo</button>
+        <button (click)="goToUserPage()" class="vai-user-page">Torna al tuo Profilo Admin</button>
     </div>
 
     <div *ngIf="file" class="work-form">

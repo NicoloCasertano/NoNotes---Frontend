@@ -195,7 +195,7 @@ a.upload-work:hover {
   position: relative;
   z-index: 200;
   padding: 2rem 0;
-  height: 100%;
+  height: 20%;
 }
 .footer-inner {
   max-width: 1200px;
