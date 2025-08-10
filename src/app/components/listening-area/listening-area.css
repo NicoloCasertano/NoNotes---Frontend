@@ -117,6 +117,7 @@
   border: none;
   padding: 10px;
   background: #000000;
+  align-items: center;
 }
 
 .region-item {
@@ -124,7 +125,6 @@
   padding: 8px;
   border-radius: 4px;
   cursor: pointer;
-  width: 95%;
 }
 
 .region-item textarea {
@@ -133,22 +133,6 @@
   resize: vertical;
   margin-top: 4px;
   background-color: #cce7e788;
-}
-
-/* Box delle note */
-.note-box {
-	position: absolute;
-	top: 0;
-	width: 100px;
-	height: 60px;
-	padding: 4px;
-	box-shadow: 0 2px 6px rgba(255, 254, 254, 0.2);
-  border: 1px solid rgb(255, 255, 255);
-	border-radius: 6px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
 }
 
 .save-all-note {

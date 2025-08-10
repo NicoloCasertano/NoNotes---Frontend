@@ -104,7 +104,7 @@ import { AuthService } from '../../services/authorization-service';
 			<button *ngIf="regionsActive" class="save-all-note" (mousedown)="saveNoteFull()">Send the notes to Doc</button>
 			<div class="regions-notes-list">
 				<ul>
-					<li *ngFor="let r of regionsList" (click)="selectRegion(r)" [style.background]="r.color" class="region-item">
+					<li *ngFor="let r of regionsList" (click)="selectRegion(r)" [style.background]="r.color" class="region-item" (dblclick)="onRegionRemove(r)">
 						<strong class="note-region-time">{{ r.start | number:'1.1-2' }} - {{ r.end | number:'1.1-2' }}</strong>
 						<textarea
 							[name]="'nota' + r.id"
@@ -543,7 +543,7 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		}
 	}
 
-	private onRegionCreate(region: any) {
+	onRegionCreate(region: any) {
 		
 		const container = this.wavesurfer.getWrapper(); 
 		const totalWidth = container.clientWidth;
@@ -562,7 +562,7 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		this.persistNotes();
 	}
 
-	private onRegionUpdate(region: any) {
+	onRegionUpdate(region: any) {
 		const r = this.regionsList.find(r => r.id === region.id);
 		if (r) {
 			r.start = region.start;
@@ -576,7 +576,7 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		}
   	}
 
-	private onRegionRemove(region: any) {
+	onRegionRemove(region: any) {
 		this.regionsList = this.regionsList.filter(r => r.id !== region.id);
 		region.remove();
 		if (this.selectedRegionId === region.id) {
@@ -672,7 +672,12 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 			const color = this.getNextColor();
 			const region = this.regionsPlugin!.addRegion({ start, end, color });
 			this.selectedRegionId = region.id;
+			
+			this.wavesurfer.on('dblclick', () => {
+				this.onRegionRemove(region);
 			});
+
+		});
 
 		this.regionsPlugin.on('region-created', region => this.onRegionCreate(region));		
 		this.regionsPlugin.on('region-updated', region => this.onRegionUpdate(region));
