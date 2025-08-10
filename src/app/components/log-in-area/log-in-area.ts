@@ -8,7 +8,7 @@ import { Router, RouterModule } from '@angular/router';
     standalone: true,
     imports: [ReactiveFormsModule, RouterModule],
     templateUrl: './log-in-area.html',
-    styleUrl: './log-in-area.css'
+    styleUrls: ['./log-in-area.css']
 })
 export class LogInArea {
     formBuilder = inject(FormBuilder);

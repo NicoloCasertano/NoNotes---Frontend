@@ -11,6 +11,4 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
     title = 'no_saintz_app';
-
-    
 }

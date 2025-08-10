@@ -6,17 +6,14 @@
     <title>Log-In-Area</title>
 </head>
 <body>
-    
-    
     <div class="log-in-area">
         <div class="logo"></div>
         <Form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form-log">
             <div class="log-in-div-header">
-                
             </div>
             <div class="log-in-div">
                 <div class="blur-point"></div>
-                <h2>YOU NEED LOG IN</h2>
+                <h2>LOG IN AREA</h2>
                 <input type="email" id="email" placeholder="Your email" formControlName="email" class="email"><br>
                 <input type="password" id="password" placeholder="Your Password" minlength="5" maxlength="30" formControlName="password" class="password"><br>
                 <button type="submit" class="welcome-button">Welcome</button><br>

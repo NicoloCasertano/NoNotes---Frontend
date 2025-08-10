@@ -121,7 +121,7 @@
     top: 0; right: 0;
     margin-left: 80%;
     width: 100%; height: 100%;
-    background-image: url(../../../../../../../Desktop/GRAFICA_NS/TYPE_LOGO/CHROME.png);
+    background-image: url('https://github.com/NicoloCasertano/NoNotes---Frontend/blob/main/assets/CHROME-NoSfondo.png?raw=true');
     background-size: cover;
     background-color: transparent;
     height: 70px;
