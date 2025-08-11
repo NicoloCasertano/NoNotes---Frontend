@@ -612,10 +612,15 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 		
 		const dto: WorkDto = {
 			workId: this.work.workId,
+			file: this.work.file,
 			title: this.work.title,
 			bpm: this.work.bpm,
 			key: this.work.key,
-			nota: payload
+			audio: this.work.audio,
+			img: this.work.img,
+			user: this.work.user,
+			dataDiCreazione: this.work.dataDiCreazione,
+			nota: payload,
 		};
 		
 		this.workService.updateWorkFull(this.work.workId, dto).subscribe({
@@ -631,9 +636,14 @@ export class ListeningArea implements OnDestroy, OnChanges, AfterViewInit{
 
 		const dto: WorkDto = {
 			workId: this.work.workId,
+			file: this.work.file,
 			title: this.work.title,
 			bpm: this.work.bpm,
 			key: this.work.key,
+			audio: this.work.audio,
+			img: this.work.img,
+			user: this.work.user,
+			dataDiCreazione: this.work.dataDiCreazione,
 			nota: payload
 		};
 	}

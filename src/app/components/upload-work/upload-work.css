@@ -17,7 +17,7 @@
   margin-left: 20%;
   z-index: 3;
   padding: 3%;
-  position: absolute;
+  position: relative;
 }
 
 .drop-zone:hover {
@@ -162,6 +162,7 @@ h1 {
     opacity: 0;
     animation: fadeInPage 1.5s ease-out forwards;
     background-color: black; /* evita flash bianco */
+    position: relative;
 }
 
 @keyframes fadeInPage {

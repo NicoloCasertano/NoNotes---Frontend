@@ -10,6 +10,7 @@ import { jwtDecode } from 'jwt-decode';
 import { UserModel } from '../../models/user-model';
 import { ListeningArea } from '../listening-area/listening-area';
 import { WorkDto } from '../../models/dto/work-dto';
+import { RoleGuard } from '../role-guard/role-guard';
 
 @Component({
 	standalone: true,
@@ -26,6 +27,7 @@ export class UploadWork implements OnInit{
 	private _userService = inject(UserService);
 
 	work: {
+		file?: File,
 		title?: string,
 		artName?: string,
 		bpm?: number,
@@ -38,7 +40,7 @@ export class UploadWork implements OnInit{
 	];
 
 	userId = this._authService.getUserId();
-	isAdmin = false;
+	isAdmin?: boolean = false;
 	currentArtName = '';
 	targetName = '';
 	users: UserModel[] = [];
@@ -96,23 +98,27 @@ export class UploadWork implements OnInit{
 
 	submitWork() {
 		if(!this.file || !this.work.title || !this.work.artName || !this.work.bpm || !this.work.key) return;
+		console.log('sono presenti tutti i campi');
+		const payload = this._authService.decodePayload();
+		this.isAdmin = payload?.authorities.includes('ROLE_ADMIN');
+		console.log(this.isAdmin);
 
-		this.isAdmin = this._authService.getUserRoles()?.includes('ROLE_ADMIN') || false;
-		
 		const formData = new FormData();
+		this.work.dataDiCreazione = new Date();
+		
 		formData.append('file', this.file);
 		formData.append('title', this.work.title);
 		formData.append('bpm', this.work.bpm.toString());
 		formData.append('key', this.work.key);
-		formData.append(
-			'dataDiCreazione',
-			this.work.dataDiCreazione ? (this.work.dataDiCreazione).toISOString() : new Date().toISOString());
+		formData.append('dataDiCreazione', this.work.dataDiCreazione.toISOString().split('T')[0]);
 		formData.append('artName', this.work.artName);
+
 		this._workService.createWork(this.work);
 		this._workService.uploadWork(formData).subscribe({
 			next: (createdWork) => {
 				console.warn('Work upload completato con successo');
 				this._router.navigate([`/listening-area/${createdWork.workId}`]);
+				console.log(this.work.artName);
 			},
 			error: (err) => {
 				console.error('Errore nel salvataggio del work: ', err);

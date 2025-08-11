@@ -1,8 +1,8 @@
 import { AudioModel } from "./audio-model"
-import { UserModel } from "./user-model"
 
 export interface WorkModel {
     workId: number,
+    file: File|null,
     title: string,
     bpm: number,
     key: string,
@@ -14,6 +14,6 @@ export interface WorkModel {
         artName: string;
         email: string;
     },
-    dataDiCreazione: string;
+    dataDiCreazione: Date;
     nota: string|null,
 }

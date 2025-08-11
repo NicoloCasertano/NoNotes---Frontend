@@ -28,7 +28,8 @@ export class WorkService {
     }
 
     findWorkDoneByUser(userId:number): Observable<WorkModel[]> {
-        return this._http.get<WorkModel[]>(`${this._url}/by-user/${userId}`);
+        return this._http.get<WorkModel[]>(`${this._url}/by-user/${userId}`)
+            .pipe(map(ws => ws.map(this.toWorkModel)));
     }
 
     findWorkById(workId: number): Observable<WorkModel> {
@@ -40,7 +41,9 @@ export class WorkService {
     }
 
     createWork(dto: any): Observable<void> {
-        return this._http.post<void>(`${this._url}/new`, dto);
+        const token = localStorage.getItem('jwt_token');
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+        return this._http.post<void>(`${this._url}/new`, dto, { headers });
     }
 
     updateWork(id: number, updates: Partial<WorkModel>): Observable<WorkModel> {
@@ -49,12 +52,27 @@ export class WorkService {
 
     uploadWork(form: FormData): Observable<WorkDto> {
         const token = localStorage.getItem('jwt_token');
-        const headers = token ? new HttpHeaders({ 'Authorization': `Bearer ${token}`}) : undefined;
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
         return this._http.post<WorkDto>(`${this._url}/upload`, form, { headers });
     }
 
     updateWorkFull(id: number, dto: WorkDto): Observable<WorkDto> {
         return this._http.put<WorkDto>(`${this._url}/update/${id}`, dto);
+    }
+
+    toWorkModel(dto: WorkDto): WorkModel {
+        return {
+            workId: dto.workId,
+            file: null,
+            title: dto.title,
+            bpm: dto.bpm,
+            key: dto.key,
+            audio: dto.audio,
+            img: dto.img,
+            user: dto.user,
+            dataDiCreazione: dto.dataDiCreazione,
+            nota: dto.nota
+        }
     }
 
 }
